@@ -1,5 +1,5 @@
 {
-  "name": "react-directx",
+  "name": "react-combinex",
   "version": "1.0.0",
   "description": "for micro react component, query dom and rerender component like redux",
   "main": "./build/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/webkixi/react-directx.git"
+    "url": "git+https://github.com/webkixi/react-combinex.git"
   },
   "dependencies": {
     "fkp-sax": "^1.5.10",
@@ -30,12 +30,12 @@
     "jquery",
     "fkp",
     "redux",
-    "directx"
+    "combinex"
   ],
   "author": "天天修改newa",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/webkixi/react-directx/issues"
+    "url": "https://github.com/webkixi/react-combinex/issues"
   },
-  "homepage": "https://github.com/webkixi/react-directx#readme"
+  "homepage": "https://github.com/webkixi/react-combinex#readme"
 }
