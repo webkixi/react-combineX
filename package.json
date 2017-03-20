@@ -1,6 +1,6 @@
 {
   "name": "react-directx",
-  "version": "1.0.5",
+  "version": "1.0.0",
   "description": "for micro react component, query dom and rerender component like redux",
   "main": "./build/index.js",
   "scripts": {
