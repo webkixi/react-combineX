@@ -3,16 +3,15 @@
  * ComposedComponent  {React-Element}   [被包围的子组件]
  */
 
+const isClient = (() => typeof window !== 'undefined')()
 import SAX from 'fkp-sax'
 import React from 'react';
-import { findDOMNode } from 'react-dom';
-import uniqueId from 'lodash.uniqueid'
+const findDOMNode = ( isClient ? require('react-dom').findDOMNode : function(){} )
+import cloneDeep from 'lodash.clonedeep'
 import merge from 'lodash.merge'
+import uniqueId from 'lodash.uniqueid'
 
-const globalName = uniqueId('ReQuery_')
-const queryer = SAX(globalName)
-
-function _store(sax){
+const store = ( sax => {
   try {
     if (!sax) throw 'storehlc depend on SAX, SAX is fkp-sax, is a Global fun'
     return (id, ComposedComponent) => {
@@ -20,22 +19,25 @@ function _store(sax){
       return class extends ComposedComponent {
         constructor(props) {
           super(props)
-          this.state.globalName = id
-        }
-        componentWillMount() {
+          this.globalName = id
+          const queryer = sax(id)
+          queryer.data.originalState
+          ? queryer.data.originalState[id] = cloneDeep(this.state)
+          : ( ()=>{
+            let temp = {}; temp[id] = cloneDeep(this.state)
+            queryer.data.originalState = temp
+          })()
           sax.bind(id, this)
-          if (super.componentWillMount) super.componentWillMount()
         }
       }
-    }   
-  } 
-  catch (e) {
+    }
+  } catch (e) {
     return ComposedComponent
   }
-}
-const store = _store(SAX)
+})(SAX)
 
-export default (ComposedComponent, opts, cb) => {
+
+export default function combineX(ComposedComponent, opts, cb){
   if (typeof opts == 'function') {
     cb = opts
     opts = undefined
@@ -48,6 +50,15 @@ export default (ComposedComponent, opts, cb) => {
     Array.isArray(ComposedComponent)
   ) { return }
 
+  const globalName = uniqueId('Combinex_')
+  let queryer = SAX(globalName, opts||{})
+  // let queryer = SAX(globalName)
+
+  /**
+   * ComposedComponent 为 React element
+   * @param  {[type]} React [description]
+   * @return [type]         [description]
+   */
   if (React.isValidElement(ComposedComponent)) {
     return class extends React.Component {
       constructor(props){
@@ -71,23 +82,32 @@ export default (ComposedComponent, opts, cb) => {
           show: false
         })
       }
+
+      componentDidUpdate(){
+        this.componentDidMount()
+      }
+
       componentDidMount() {
         let self = this
   			let that = findDOMNode(this);
-        const ctx = {
+        const _ctx = {
           show: this.show,
           hide: this.hide
         }
 
-  			if( this.props.itemDefaultMethod ){
-  				if (this.props.itemMethod) this.props.itemMethod.call(ctx, that, self.intent)
-  				setTimeout(function(){
-  					if( typeof self.props.itemDefaultMethod === 'function' ) self.props.itemDefaultMethod.call(ctx, that, self.intent)
-  				}, 17)
-  			} else if (typeof cb == 'function' || this.props.itemMethod){
-          const imd = cb ||this.props.itemMethod
-  				imd.call(ctx, that, self.intent)
-  			}
+        if( typeof this.props.itemDefaultMethod == 'function' ){
+          self.props.itemDefaultMethod.call(_ctx, that, self.intent)
+        }
+
+        if (
+          typeof cb == 'function' ||
+          typeof this.props.rendered == 'function' ||
+          typeof this.props.itemMethod == 'function'
+        ) {
+          const imd = cb || this.props.rendered || this.props.itemMethod
+          imd.call(_ctx, that, self.intent)
+        }
+
         super.componentDidMount ? super.componentDidMount() : ''
       }
       render(){
@@ -96,23 +116,43 @@ export default (ComposedComponent, opts, cb) => {
     }
   }
 
-  const CC = store(globalName, ComposedComponent)
-  queryer.append(opts||{})
-  function dispatch(key){
+
+  /**
+   * ComposedComponent 为 React class
+   * @type {[type]}
+   */
+
+  function dispatcher(key, props){
     const ctx = queryer.store.ctx[globalName]
-    const stateAsset = ctx.state
-    const queryData = queryer.data
-    if (queryData[key]) {
-      const target = merge({}, stateAsset, queryData[key]())
-      ctx.setState(target)
+
+    const liveState = merge({}, ctx.state)
+    const oState = queryer.data.originalState[globalName]
+    // const oState = JSON.parse(queryer.data.originalState[globalName])
+
+    const queryActions = queryer.data
+
+    const _state = {
+      curState: liveState,
+    }
+
+    if (queryActions[key]) {
+      const _tmp = queryActions[key].call(_state, oState, props)
+      if (_tmp) {
+        const target = merge({}, oState, _tmp)
+        ctx.setState(target)
+      }
     }
   }
 
   let ReactComponentMonuted = false
-  class Temp extends CC {
+  class Temp extends ComposedComponent {
     constructor(props) {
       super(props);
 			this.intent = this.props.intent || [];
+    }
+
+    componentDidUpdate(){
+      this.componentDidMount()
     }
 
     componentDidMount(){
@@ -120,40 +160,139 @@ export default (ComposedComponent, opts, cb) => {
 			let that = findDOMNode(this);
 
       const _ctx = {
-        dispatch: dispatch,
+        dispatch: dispatcher,
         refs: this.refs
       }
 
-			if( this.props.itemDefaultMethod ){
-				if (this.props.itemMethod) this.props.itemMethod.call(that, _ctx, self.intent)
-				setTimeout(function(){
-					if( typeof self.props.itemDefaultMethod === 'function' ) self.props.itemDefaultMethod.call(that, _ctx, self.intent)
-				}, 17)
+			if( typeof this.props.itemDefaultMethod == 'function' ){
+        self.props.itemDefaultMethod.call(_ctx, that, self.intent)
 			}
-      else if (typeof cb == 'function' || this.props.itemMethod){
-        const imd = cb ||this.props.itemMethod
-        imd.call(that, _ctx, self.intent)
-			}
+
+      if (
+        typeof cb == 'function' ||
+        typeof this.props.rendered == 'function' ||
+        typeof this.props.itemMethod == 'function'
+      ) {
+        const imd = cb || this.props.rendered || this.props.itemMethod
+        imd.call(_ctx, that, self.intent)
+      }
+
       super.componentDidMount ? super.componentDidMount() : ''
       ReactComponentMonuted = true
 		}
   }
 
-  let timer;
   class Query {
     constructor(config){
-      this.element = Temp
+      this.element = store(globalName, Temp)
+      this.timer
+      this.globalName = globalName
+      this.saxer = queryer
       this.setActions = queryer.setActions
+      this.on = queryer.on
       this.roll = queryer.roll
     }
 
-    dispatch(key){
-      clearTimeout(timer)
-      timer = setTimeout(function() {
-        if (ReactComponentMonuted) dispatch(key)
-      }, 100);
+    dispatch(key, props){
+      clearTimeout(this.timer)
+      this.timer = setTimeout(function() {
+        if (ReactComponentMonuted) dispatcher(key, props)
+      }, 0);
     }
   }
 
-  return new Query()
+  if (opts.type == 'reactClass') {
+    return Temp
+  } else {
+    return new Query()
+  }
+}
+
+
+// BaseCombine
+export class CombineClass{
+  constructor(config){
+    this.config = config
+    this.isClient = (() => typeof window !== 'undefined')()
+    this.element
+    this.inject = this::this.inject
+    this.combinex = this::this.combinex
+
+    this.inject()
+  }
+
+  combinex(GridsBase, Actions={}){
+    const that = this
+    const CombX = combineX(GridsBase, Actions)
+    this.x = CombX.element
+    this.dispatch = CombX.dispatch
+
+    this.setActions = function(key, func){
+      const _actions = {}
+      _actions[key] = func
+      CombX.saxer.setActions(_actions)
+    }
+    this.on = this.setActions
+
+    this.roll = function(key, data){
+      CombX.saxer.roll(key, data)
+    }
+    this.emit = this.roll
+
+    this.append = function(obj){
+      CombX.saxer.append(obj)
+      Object.keys(obj).map(function(item){
+        const lowCaseName = item.toLowerCase()
+        that[lowCaseName] = function(param){
+          that.dispatch(item, param)
+        }
+      })
+    }
+  }
+
+  inject(src){
+    if (this.isClient) {
+      // const ij = inject()
+      // if (this.config.theme && this.config.autoinject) {
+      //   ij.css(['/css/m/'+this.config.theme])  //注入样式
+      // }
+      // if (typeof src == 'function') {
+      //   src(ij)
+      // }
+      // return ij
+    }
+  }
+
+  browserRender(id, X){
+    if (typeof id == 'string') {
+      return React.render(<X {...this.config.props}/>, document.getElementById(id))
+    }
+
+    else if (typeof id == 'object' && id.nodeType) {
+      return React.render(<X {...this.config.props}/>, id)
+    }
+  }
+
+  render(id, cb){
+    id = id || this.config.container
+    const X = this.x
+
+    if (typeof id == 'function' || typeof cb == 'function') {
+      this.config.rendered = typeof id == 'function' ? id : cb
+    }
+    if ( typeof this.config.rendered == 'function' || typeof this.rendered == 'function' ) {
+      if (this.config.props) this.config.props.rendered = (this.config.rendered || this.rendered )
+      else {
+        this.config.props = {
+          rendered: (this.config.rendered || this.rendered )
+        }
+      }
+    }
+
+    if (typeof id == 'string' || typeof id == 'object') {
+      if (this.isClient) return this.browserRender(id, X)
+    }
+
+    return <X {...this.config.props}/>
+  }
 }
