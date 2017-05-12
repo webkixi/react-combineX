@@ -3,13 +3,16 @@
  * ComposedComponent  {React-Element}   [被包围的子组件]
  */
 
-const isClient = (() => typeof window !== 'undefined')()
+const isClient = typeof window !== 'undefined'
+const context = ( C => C ? window : global)(isClient) || {}
 import SAX from 'fkp-sax'
-import React from 'react';
-const findDOMNode = ( isClient ? require('react-dom').findDOMNode : function(){} )
 import cloneDeep from 'lodash.clonedeep'
 import merge from 'lodash.merge'
 import uniqueId from 'lodash.uniqueid'
+import React from 'react';
+const ReactDom    = ( C => C ? require('react-dom') : require('react-dom/server'))(isClient)
+const findDOMNode = ( C => C ? ReactDom.findDOMNode : function(){} )(isClient)
+const render      = ( C => C ? ReactDom.render : ReactDom.renderToString)(isClient)
 
 const store = ( sax => {
   try {
@@ -265,11 +268,11 @@ export class CombineClass{
 
   browserRender(id, X){
     if (typeof id == 'string') {
-      return React.render(<X {...this.config.props}/>, document.getElementById(id))
+      return render(<X {...this.config.props}/>, document.getElementById(id))
     }
 
     else if (typeof id == 'object' && id.nodeType) {
-      return React.render(<X {...this.config.props}/>, id)
+      return render(<X {...this.config.props}/>, id)
     }
   }
 
