@@ -1,8 +1,8 @@
 {
   "name": "react-combinex",
-  "version": "1.0.7",
+  "version": "1.0.2",
   "description": "for micro react component, query dom and rerender component like redux",
-  "main": "./index.js",
+  "main": "./build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

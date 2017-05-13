@@ -17,10 +17,6 @@ var _fkpSax = require('fkp-sax');
 
 var _fkpSax2 = _interopRequireDefault(_fkpSax);
 
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
 var _lodash = require('lodash.clonedeep');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -32,6 +28,10 @@ var _lodash4 = _interopRequireDefault(_lodash3);
 var _lodash5 = require('lodash.uniqueid');
 
 var _lodash6 = _interopRequireDefault(_lodash5);
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -46,12 +46,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * ComposedComponent  {React-Element}   [被包围的子组件]
  */
 
-var isClient = function () {
-  return typeof window !== 'undefined';
-}();
+var isClient = typeof window !== 'undefined';
+var context = function (C) {
+  return C ? window : global;
+}(isClient) || {};
 
-var findDOMNode = isClient ? require('react-dom').findDOMNode : function () {};
-
+var ReactDom = function (C) {
+  return C ? require('react-dom') : require('react-dom/server');
+}(isClient);
+var findDOMNode = function (C) {
+  return C ? ReactDom.findDOMNode : function () {};
+}(isClient);
+var render = function (C) {
+  return C ? ReactDom.render : ReactDom.renderToString;
+}(isClient);
 
 var store = function (sax) {
   try {
@@ -353,9 +361,9 @@ var CombineClass = exports.CombineClass = function () {
     key: 'browserRender',
     value: function browserRender(id, X) {
       if (typeof id == 'string') {
-        return _react2.default.render(_react2.default.createElement(X, this.config.props), document.getElementById(id));
+        return render(_react2.default.createElement(X, this.config.props), document.getElementById(id));
       } else if ((typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object' && id.nodeType) {
-        return _react2.default.render(_react2.default.createElement(X, this.config.props), id);
+        return render(_react2.default.createElement(X, this.config.props), id);
       }
     }
   }, {
