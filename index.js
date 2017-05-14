@@ -14,6 +14,7 @@ const ReactDom    = ( C => C ? require('react-dom') : require('react-dom/server'
 const findDOMNode = ( C => C ? ReactDom.findDOMNode : function(){} )(isClient)
 const render      = ( C => C ? ReactDom.render : ReactDom.renderToString)(isClient)
 
+const componentMonuted = SAX('ReactComponentMonuted')
 const store = ( sax => {
   try {
     if (!sax) throw 'storehlc depend on SAX, SAX is fkp-sax, is a Global fun'
@@ -23,6 +24,12 @@ const store = ( sax => {
         constructor(props) {
           super(props)
           this.globalName = id
+
+          // 初始化，组件没有渲染的状态
+          const unmounted = {}
+          unmounted[id] = false
+          componentMonuted.append(unmounted)
+
           const queryer = sax(id)
           queryer.data.originalState
           ? queryer.data.originalState[id] = cloneDeep(this.state)
@@ -55,9 +62,16 @@ export default function combineX(ComposedComponent, opts, cb){
 
   const globalName = uniqueId('Combinex_')
   let queryer = SAX(globalName, opts||{})
-  // let queryer = SAX(globalName)
+
+  // for type 2
+  let returnReactClass = false
+  if (opts.type == 'reactClass') {
+    returnReactComponent = true
+    delete opts.type
+  }
 
   /**
+   * type 1
    * ComposedComponent 为 React element
    * @param  {[type]} React [description]
    * @return [type]         [description]
@@ -121,6 +135,7 @@ export default function combineX(ComposedComponent, opts, cb){
 
 
   /**
+    * type 2
    * ComposedComponent 为 React class
    * @type {[type]}
    */
@@ -154,6 +169,12 @@ export default function combineX(ComposedComponent, opts, cb){
 			this.intent = this.props.intent || [];
     }
 
+    componentWillUnmount(){
+      const gname = this.globalName
+      componentMonuted.data[gname] = false
+      // ReactComponentMonuted = false
+    }
+
     componentDidUpdate(){
       this.componentDidMount()
     }
@@ -180,8 +201,10 @@ export default function combineX(ComposedComponent, opts, cb){
         imd.call(_ctx, that, self.intent)
       }
 
+      const gname = this.globalName
+      componentMonuted.data[gname] = true
       super.componentDidMount ? super.componentDidMount() : ''
-      ReactComponentMonuted = true
+      // ReactComponentMonuted = true
 		}
   }
 
@@ -196,16 +219,23 @@ export default function combineX(ComposedComponent, opts, cb){
       this.roll = queryer.roll
     }
 
+    hasMounted(){
+      const gname = this.globalName
+      return componentMonuted.data[gname]
+    }
+
     dispatch(key, props){
+      const that = this
       clearTimeout(this.timer)
       this.timer = setTimeout(function() {
-        if (ReactComponentMonuted) dispatcher(key, props)
+        const hasMounted = that.hasMounted()
+        if (hasMounted) dispatcher(key, props)
       }, 0);
     }
   }
 
-  if (opts.type == 'reactClass') {
-    return Temp
+  if (returnReactClass) {
+    return store(globalName, Temp)
   } else {
     return new Query()
   }
@@ -296,6 +326,7 @@ export class CombineClass{
       if (this.isClient) return this.browserRender(id, X)
     }
 
-    return <X {...this.config.props}/>
+    const _props = this.config.props || {}
+    return <X {..._props}/>
   }
 }
