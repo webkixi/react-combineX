@@ -5,11 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.CombineClass = undefined;
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.default = combineX;
 
@@ -61,10 +61,11 @@ var render = function (C) {
   return C ? ReactDom.render : ReactDom.renderToString;
 }(isClient);
 
+var componentMonuted = (0, _fkpSax2.default)('ReactComponentMonuted');
 var store = function (sax) {
   try {
     if (!sax) throw 'storehlc depend on SAX, SAX is fkp-sax, is a Global fun';
-    return function (id, ComposedComponent) {
+    return function (id, ComposedComponent, extension) {
       if (!id) throw 'storehlc id must be set';
       return function (_ComposedComponent) {
         _inherits(_class, _ComposedComponent);
@@ -75,12 +76,30 @@ var store = function (sax) {
           var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
 
           _this.globalName = id;
+
+          // 初始化，组件没有渲染的状态
+          var unmounted = {};
+          unmounted[id] = false;
+          componentMonuted.append(unmounted);
+
           var queryer = sax(id);
           queryer.data.originalState ? queryer.data.originalState[id] = (0, _lodash2.default)(_this.state) : function () {
             var temp = {};temp[id] = (0, _lodash2.default)(_this.state);
             queryer.data.originalState = temp;
           }();
           sax.bind(id, _this);
+
+          if ((typeof extension === 'undefined' ? 'undefined' : _typeof(extension)) == 'object') {
+            if (_typeof(extension.plugins) == 'object' && !Array.isArray(extension.plugins)) {
+              var plugins = extension.plugins;
+              Object.keys(extension.plugins).map(function (item) {
+                if (typeof plugins[item] == 'function') {
+                  // plugins[item] = this::plugins[item]
+                  _this[item] = plugins[item];
+                }
+              });
+            }
+          }
           return _this;
         }
 
@@ -92,102 +111,131 @@ var store = function (sax) {
   }
 }(_fkpSax2.default);
 
+var isFunction = function isFunction(target) {
+  return typeof target == 'function';
+};
+
+/**
+ * [dealWithReactElement 处理传入为react element 的场景，一般用于wrap]
+ * @param  {react element} CComponent [description]
+ * @return {react class}            [description]
+ */
+function dealWithReactElement(CComponent) {
+  return function (_React$Component) {
+    _inherits(_class2, _React$Component);
+
+    function _class2(props) {
+      _classCallCheck(this, _class2);
+
+      var _this2 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, props));
+
+      _this2.intent = _this2.props.intent;
+      _this2.state = { show: true };
+
+      _this2.show = _this2.show.bind(_this2);
+      _this2.hide = _this2.hide.bind(_this2);
+      return _this2;
+    }
+
+    _createClass(_class2, [{
+      key: 'componentWillMount',
+      value: function componentWillMount() {
+        if (this.props.show == false) this.setState({ show: false });
+      }
+    }, {
+      key: 'show',
+      value: function show() {
+        this.setState({
+          show: true
+        });
+      }
+    }, {
+      key: 'hide',
+      value: function hide() {
+        this.setState({
+          show: false
+        });
+      }
+    }, {
+      key: 'componentDidUpdate',
+      value: function componentDidUpdate() {
+        this.componentDidMount();
+      }
+    }, {
+      key: 'componentDidMount',
+      value: function componentDidMount() {
+        var self = this;
+        var that = findDOMNode(this);
+        var _ctx = {
+          show: this.show,
+          hide: this.hide
+        };
+
+        if (typeof this.props.itemDefaultMethod == 'function') {
+          self.props.itemDefaultMethod.call(_ctx, that, self.intent);
+        }
+
+        if (typeof cb == 'function' || typeof this.props.rendered == 'function' || typeof this.props.itemMethod == 'function') {
+          var imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod;
+          imd.call(_ctx, that, self.intent);
+        }
+
+        _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this) ? _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this).call(this) : '';
+      }
+    }, {
+      key: 'render',
+      value: function render() {
+        return this.state.show ? CComponent : _react2.default.createElement('span', null);
+      }
+    }]);
+
+    return _class2;
+  }(_react2.default.Component);
+}
+
+/**
+ * [combineX description]
+ * @param  {react class | react element}   ComposedComponent [description]
+ * @param  {object}   opts              [description]
+ * @param  {Function} cb                [description]
+ * @return {react class | object}       [description]
+ */
+
 function combineX(ComposedComponent, opts, cb) {
+  if (!ComposedComponent) return;
+
+  if (typeof ComposedComponent == 'string' || Array.isArray(ComposedComponent)) return;
+
+  var extension = cb;
+
   if (typeof opts == 'function') {
     cb = opts;
     opts = undefined;
   }
-  if (!ComposedComponent) {
-    console.log('请指定ComposedComponent');
-    return;
-  }
-  if (typeof ComposedComponent == 'string' || Array.isArray(ComposedComponent)) {
-    return;
-  }
 
   var globalName = (0, _lodash6.default)('Combinex_');
+
   var queryer = (0, _fkpSax2.default)(globalName, opts || {});
-  // let queryer = SAX(globalName)
+
+  // will return React class for type 2
+  var returnReactClass = false;
+  if (opts.type == 'reactClass') {
+    returnReactComponent = true;
+    delete opts.type;
+  }
 
   /**
+   * type 1
    * ComposedComponent 为 React element
    * @param  {[type]} React [description]
    * @return [type]         [description]
    */
   if (_react2.default.isValidElement(ComposedComponent)) {
-    return function (_React$Component) {
-      _inherits(_class2, _React$Component);
-
-      function _class2(props) {
-        _classCallCheck(this, _class2);
-
-        var _this2 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, props));
-
-        _this2.intent = _this2.props.intent;
-        _this2.state = { show: true };
-
-        _this2.show = _this2.show.bind(_this2);
-        _this2.hide = _this2.hide.bind(_this2);
-        return _this2;
-      }
-
-      _createClass(_class2, [{
-        key: 'componentWillMount',
-        value: function componentWillMount() {
-          if (this.props.show == false) this.setState({ show: false });
-        }
-      }, {
-        key: 'show',
-        value: function show() {
-          this.setState({
-            show: true
-          });
-        }
-      }, {
-        key: 'hide',
-        value: function hide() {
-          this.setState({
-            show: false
-          });
-        }
-      }, {
-        key: 'componentDidUpdate',
-        value: function componentDidUpdate() {
-          this.componentDidMount();
-        }
-      }, {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-          var self = this;
-          var that = findDOMNode(this);
-          var _ctx = {
-            show: this.show,
-            hide: this.hide
-          };
-
-          if (typeof this.props.itemDefaultMethod == 'function') {
-            self.props.itemDefaultMethod.call(_ctx, that, self.intent);
-          }
-
-          if (typeof cb == 'function' || typeof this.props.rendered == 'function' || typeof this.props.itemMethod == 'function') {
-            var imd = cb || this.props.rendered || this.props.itemMethod;
-            imd.call(_ctx, that, self.intent);
-          }
-
-          _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this) ? _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this).call(this) : '';
-        }
-      }, {
-        key: 'render',
-        value: function render() {
-          return this.state.show ? ComposedComponent : _react2.default.createElement('var', null);
-        }
-      }]);
-
-      return _class2;
-    }(_react2.default.Component);
+    return dealWithReactElement(ComposedComponent);
   }
 
   /**
+   * type 2
    * ComposedComponent 为 React class
    * @type {[type]}
    */
@@ -229,6 +277,13 @@ function combineX(ComposedComponent, opts, cb) {
     }
 
     _createClass(Temp, [{
+      key: 'componentWillUnmount',
+      value: function componentWillUnmount() {
+        var gname = this.globalName;
+        componentMonuted.data[gname] = false;
+        // ReactComponentMonuted = false
+      }
+    }, {
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
         this.componentDidMount();
@@ -249,12 +304,14 @@ function combineX(ComposedComponent, opts, cb) {
         }
 
         if (typeof cb == 'function' || typeof this.props.rendered == 'function' || typeof this.props.itemMethod == 'function') {
-          var imd = cb || this.props.rendered || this.props.itemMethod;
+          var imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod;
           imd.call(_ctx, that, self.intent);
         }
 
+        var gname = this.globalName;
+        componentMonuted.data[gname] = true;
         _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
-        ReactComponentMonuted = true;
+        // ReactComponentMonuted = true
       }
     }]);
 
@@ -265,21 +322,30 @@ function combineX(ComposedComponent, opts, cb) {
     function Query(config) {
       _classCallCheck(this, Query);
 
-      this.element = store(globalName, Temp);
+      this.element = store(globalName, Temp, extension);
       this.timer;
       this.globalName = globalName;
       this.saxer = queryer;
       this.setActions = queryer.setActions;
       this.on = queryer.on;
       this.roll = queryer.roll;
+      this.hasMounted = this.hasMounted.bind(this);
     }
 
     _createClass(Query, [{
+      key: 'hasMounted',
+      value: function hasMounted() {
+        var gname = this.globalName;
+        return componentMonuted.data[gname];
+      }
+    }, {
       key: 'dispatch',
       value: function dispatch(key, props) {
+        var that = this;
         clearTimeout(this.timer);
         this.timer = setTimeout(function () {
-          if (ReactComponentMonuted) dispatcher(key, props);
+          var hasMounted = that.hasMounted();
+          if (hasMounted) dispatcher(key, props);
         }, 0);
       }
     }]);
@@ -287,26 +353,32 @@ function combineX(ComposedComponent, opts, cb) {
     return Query;
   }();
 
-  if (opts.type == 'reactClass') {
-    return Temp;
+  if (returnReactClass) {
+    return store(globalName, Temp, extension);
   } else {
     return new Query();
   }
 }
 
-// BaseCombine
+// CombineClass
+
+function browserRender(id, X) {
+  if (typeof id == 'string') {
+    return render(_react2.default.createElement(X, this.config.props), document.getElementById(id));
+  } else if ((typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object' && id.nodeType) {
+    return render(_react2.default.createElement(X, this.config.props), id);
+  }
+}
 
 var CombineClass = exports.CombineClass = function () {
   function CombineClass(config) {
     _classCallCheck(this, CombineClass);
 
     this.config = config;
-    this.isClient = function () {
-      return typeof window !== 'undefined';
-    }();
+    this.isClient = isClient;
+    this.extension = {};
     this.element;
-    this.inject = this.inject.bind(this);
-    this.combinex = this.combinex.bind(this);
+    browserRender = browserRender.bind(this);
 
     this.inject();
   }
@@ -317,19 +389,23 @@ var CombineClass = exports.CombineClass = function () {
       var Actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var that = this;
-      var CombX = combineX(GridsBase, Actions);
+      var CombX = combineX(GridsBase, Actions, this.extension);
       this.x = CombX.element;
-      this.dispatch = CombX.dispatch;
+      this.globalName = CombX.globalName;
+      this.dispatch = CombX.dispatch.bind(CombX);
+      this.hasMounted = CombX.hasMounted.bind(CombX);
 
       this.setActions = function (key, func) {
         var _actions = {};
         _actions[key] = func;
         CombX.saxer.setActions(_actions);
+        return this;
       };
       this.on = this.setActions;
 
       this.roll = function (key, data) {
         CombX.saxer.roll(key, data);
+        return this;
       };
       this.emit = this.roll;
 
@@ -341,6 +417,7 @@ var CombineClass = exports.CombineClass = function () {
             that.dispatch(item, param);
           };
         });
+        return this;
       };
     }
   }, {
@@ -356,15 +433,19 @@ var CombineClass = exports.CombineClass = function () {
         // }
         // return ij
       }
+      return this;
     }
   }, {
-    key: 'browserRender',
-    value: function browserRender(id, X) {
-      if (typeof id == 'string') {
-        return render(_react2.default.createElement(X, this.config.props), document.getElementById(id));
-      } else if ((typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object' && id.nodeType) {
-        return render(_react2.default.createElement(X, this.config.props), id);
-      }
+    key: 'setConfig',
+    value: function setConfig(config) {
+      this.config = config || {};
+      return this;
+    }
+  }, {
+    key: 'setProps',
+    value: function setProps(props) {
+      this.config.props = props;
+      return this;
     }
   }, {
     key: 'render',
@@ -384,10 +465,11 @@ var CombineClass = exports.CombineClass = function () {
       }
 
       if (typeof id == 'string' || (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
-        if (this.isClient) return this.browserRender(id, X);
+        if (this.isClient) return browserRender(id, X);
       }
 
-      return _react2.default.createElement(X, this.config.props);
+      var _props = this.config.props || {};
+      return _react2.default.createElement(X, _props);
     }
   }]);
 
