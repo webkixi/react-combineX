@@ -217,7 +217,7 @@ function combineX(ComposedComponent, opts, cb) {
 
   // will return React class for type 2
   var returnReactClass = false;
-  if (opts.type == 'reactClass') {
+  if ((typeof opts === 'undefined' ? 'undefined' : _typeof(opts)) == 'object' && opts.type == 'reactClass') {
     returnReactComponent = true;
     delete opts.type;
   }
