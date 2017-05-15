@@ -29,10 +29,6 @@ var _lodash5 = require('lodash.uniqueid');
 
 var _lodash6 = _interopRequireDefault(_lodash5);
 
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -51,14 +47,16 @@ var context = function (C) {
   return C ? window : global;
 }(isClient) || {};
 
-var ReactDom = function (C) {
-  return C ? require('react-dom') : require('react-dom/server');
+// import React from 'react';
+var React = typeof React != 'undefined' ? React : require('react');
+var reactDom = function (C) {
+  return typeof ReactDOM != 'undefined' ? ReactDOM : C ? require('react-dom') : require('react-dom/server');
 }(isClient);
 var findDOMNode = function (C) {
-  return C ? ReactDom.findDOMNode : function () {};
+  return C ? reactDom.findDOMNode : function () {};
 }(isClient);
 var render = function (C) {
-  return C ? ReactDom.render : ReactDom.renderToString;
+  return C ? reactDom.render : reactDom.renderToString;
 }(isClient);
 
 var componentMonuted = (0, _fkpSax2.default)('ReactComponentMonuted');
@@ -185,12 +183,12 @@ function dealWithReactElement(CComponent) {
     }, {
       key: 'render',
       value: function render() {
-        return this.state.show ? CComponent : _react2.default.createElement('span', null);
+        return this.state.show ? CComponent : React.createElement('span', null);
       }
     }]);
 
     return _class2;
-  }(_react2.default.Component);
+  }(React.Component);
 }
 
 /**
@@ -230,7 +228,7 @@ function combineX(ComposedComponent, opts, cb) {
    * @param  {[type]} React [description]
    * @return [type]         [description]
    */
-  if (_react2.default.isValidElement(ComposedComponent)) {
+  if (React.isValidElement(ComposedComponent)) {
     return dealWithReactElement(ComposedComponent);
   }
 
@@ -364,9 +362,9 @@ function combineX(ComposedComponent, opts, cb) {
 
 function browserRender(id, X) {
   if (typeof id == 'string') {
-    return render(_react2.default.createElement(X, this.config.props), document.getElementById(id));
+    return render(React.createElement(X, this.config.props), document.getElementById(id));
   } else if ((typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object' && id.nodeType) {
-    return render(_react2.default.createElement(X, this.config.props), id);
+    return render(React.createElement(X, this.config.props), id);
   }
 }
 
@@ -469,7 +467,7 @@ var CombineClass = exports.CombineClass = function () {
       }
 
       var _props = this.config.props || {};
-      return _react2.default.createElement(X, _props);
+      return React.createElement(X, _props);
     }
   }]);
 

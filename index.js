@@ -9,10 +9,11 @@ import SAX from 'fkp-sax'
 import cloneDeep from 'lodash.clonedeep'
 import merge from 'lodash.merge'
 import uniqueId from 'lodash.uniqueid'
-import React from 'react';
-const ReactDom    = ( C => C ? require('react-dom') : require('react-dom/server'))(isClient)
-const findDOMNode = ( C => C ? ReactDom.findDOMNode : function(){} )(isClient)
-const render      = ( C => C ? ReactDom.render : ReactDom.renderToString)(isClient)
+// import React from 'react';
+const React = (typeof React != 'undefined' ? React : require('react'))
+const reactDom    = ( C => typeof ReactDOM != 'undefined' ? ReactDOM : C ? require('react-dom') : require('react-dom/server'))(isClient)
+const findDOMNode = ( C => C ? reactDom.findDOMNode : function(){} )(isClient)
+const render      = ( C => C ? reactDom.render : reactDom.renderToString)(isClient)
 
 const componentMonuted = SAX('ReactComponentMonuted')
 const store = ( sax => {
