@@ -69,7 +69,7 @@ const isFunction = function(target){
  * @param  {react element} CComponent [description]
  * @return {react class}            [description]
  */
-function dealWithReactElement(CComponent){
+function dealWithReactElement(CComponent, opts, cb){
   return class extends React.Component {
     constructor(props){
       super(props)
@@ -168,7 +168,7 @@ export default function combineX(ComposedComponent, opts, cb){
    * @return [type]         [description]
    */
   if (React.isValidElement(ComposedComponent)) {
-    return dealWithReactElement(ComposedComponent)
+    return dealWithReactElement(ComposedComponent, opts, cb)
   }
 
 

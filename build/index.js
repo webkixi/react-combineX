@@ -118,7 +118,7 @@ var isFunction = function isFunction(target) {
  * @param  {react element} CComponent [description]
  * @return {react class}            [description]
  */
-function dealWithReactElement(CComponent) {
+function dealWithReactElement(CComponent, opts, cb) {
   return function (_React$Component) {
     _inherits(_class2, _React$Component);
 
@@ -229,7 +229,7 @@ function combineX(ComposedComponent, opts, cb) {
    * @return [type]         [description]
    */
   if (React.isValidElement(ComposedComponent)) {
-    return dealWithReactElement(ComposedComponent);
+    return dealWithReactElement(ComposedComponent, opts, cb);
   }
 
   /**
