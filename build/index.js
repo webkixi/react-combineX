@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.CombineClass = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -12,6 +11,7 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.default = combineX;
+exports.CombineClass = CombineClass;
 
 var _fkpSax = require('fkp-sax');
 
@@ -358,108 +358,193 @@ function browserRender(id, X) {
   }
 }
 
-var CombineClass = exports.CombineClass = function () {
-  function CombineClass(config) {
-    _classCallCheck(this, CombineClass);
+function CombineClass(config) {
+  this.config = config;
+  this.isClient = isClient;
+  this.extension = {};
+  this.element;
+  browserRender = browserRender.bind(this);
 
-    this.config = config;
-    this.isClient = isClient;
-    this.extension = {};
-    this.element;
-    browserRender = browserRender.bind(this);
+  this.inject();
+}
 
-    this.inject();
+CombineClass.prototype = {
+  combinex: function combinex(GridsBase) {
+    var Actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var that = undefined;
+    var CombX = combineX(GridsBase, Actions, undefined.extension);
+    undefined.x = CombX.element;
+    undefined.globalName = CombX.globalName;
+    undefined.dispatch = CombX.dispatch.bind(CombX);
+    undefined.hasMounted = CombX.hasMounted.bind(CombX);
+
+    undefined.setActions = function (key, func) {
+      var _actions = {};
+      _actions[key] = func;
+      CombX.saxer.setActions(_actions);
+      return this;
+    };
+    undefined.on = undefined.setActions;
+
+    undefined.roll = function (key, data) {
+      CombX.saxer.roll(key, data);
+      return this;
+    };
+    undefined.emit = undefined.roll;
+
+    undefined.append = function (obj) {
+      CombX.saxer.append(obj);
+      Object.keys(obj).map(function (item) {
+        var lowCaseName = item.toLowerCase();
+        that[lowCaseName] = function (param) {
+          that.dispatch(item, param);
+        };
+      });
+      return this;
+    };
+  },
+
+  inject: function inject(src) {
+    if (undefined.isClient) {
+      // const ij = inject()
+      // if (this.config.theme && this.config.autoinject) {
+      //   ij.css(['/css/m/'+this.config.theme])  //注入样式
+      // }
+      // if (typeof src == 'function') {
+      //   src(ij)
+      // }
+      // return ij
+    }
+    return undefined;
+  },
+
+  setConfig: function setConfig(config) {
+    undefined.config = config || {};
+    return undefined;
+  },
+
+  setProps: function setProps(props) {
+    undefined.config.props = props;
+    return undefined;
+  },
+
+  render: function render(id, cb) {
+    id = id || undefined.config.container;
+    var X = undefined.x;
+
+    if (typeof id == 'function' || typeof cb == 'function') {
+      undefined.config.rendered = typeof id == 'function' ? id : cb;
+    }
+    if (typeof undefined.config.rendered == 'function' || typeof undefined.rendered == 'function') {
+      if (undefined.config.props) undefined.config.props.rendered = undefined.config.rendered || undefined.rendered;else {
+        undefined.config.props = {
+          rendered: undefined.config.rendered || undefined.rendered
+        };
+      }
+    }
+
+    if (typeof id == 'string' || (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
+      if (undefined.isClient) return browserRender(id, X);
+    }
+
+    var _props = undefined.config.props || {};
+    return React.createElement(X, _props);
   }
 
-  _createClass(CombineClass, [{
-    key: 'combinex',
-    value: function combinex(GridsBase) {
-      var Actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+};
 
-      var that = this;
-      var CombX = combineX(GridsBase, Actions, this.extension);
-      this.x = CombX.element;
-      this.globalName = CombX.globalName;
-      this.dispatch = CombX.dispatch.bind(CombX);
-      this.hasMounted = CombX.hasMounted.bind(CombX);
+// export class CombineClass{
+//   constructor(config){
+//     super(config)
+//     this.config = config
+//     this.isClient = isClient
+//     this.extension = {}
+//     this.element
+//     browserRender = this::browserRender
 
-      this.setActions = function (key, func) {
-        var _actions = {};
-        _actions[key] = func;
-        CombX.saxer.setActions(_actions);
-        return this;
-      };
-      this.on = this.setActions;
+//     this.inject()
+//   }
 
-      this.roll = function (key, data) {
-        CombX.saxer.roll(key, data);
-        return this;
-      };
-      this.emit = this.roll;
+//   combinex(GridsBase, Actions={}){
+//     const that = this
+//     const CombX = combineX(GridsBase, Actions, this.extension)
+//     this.x = CombX.element
+//     this.globalName = CombX.globalName
+//     this.dispatch = CombX::CombX.dispatch
+//     this.hasMounted = CombX::CombX.hasMounted
 
-      this.append = function (obj) {
-        CombX.saxer.append(obj);
-        Object.keys(obj).map(function (item) {
-          var lowCaseName = item.toLowerCase();
-          that[lowCaseName] = function (param) {
-            that.dispatch(item, param);
-          };
-        });
-        return this;
-      };
-    }
-  }, {
-    key: 'inject',
-    value: function inject(src) {
-      if (this.isClient) {
-        // const ij = inject()
-        // if (this.config.theme && this.config.autoinject) {
-        //   ij.css(['/css/m/'+this.config.theme])  //注入样式
-        // }
-        // if (typeof src == 'function') {
-        //   src(ij)
-        // }
-        // return ij
-      }
-      return this;
-    }
-  }, {
-    key: 'setConfig',
-    value: function setConfig(config) {
-      this.config = config || {};
-      return this;
-    }
-  }, {
-    key: 'setProps',
-    value: function setProps(props) {
-      this.config.props = props;
-      return this;
-    }
-  }, {
-    key: 'render',
-    value: function render(id, cb) {
-      id = id || this.config.container;
-      var X = this.x;
+//     this.setActions = function(key, func){
+//       const _actions = {}
+//       _actions[key] = func
+//       CombX.saxer.setActions(_actions)
+//       return this
+//     }
+//     this.on = this.setActions
 
-      if (typeof id == 'function' || typeof cb == 'function') {
-        this.config.rendered = typeof id == 'function' ? id : cb;
-      }
-      if (typeof this.config.rendered == 'function' || typeof this.rendered == 'function') {
-        if (this.config.props) this.config.props.rendered = this.config.rendered || this.rendered;else {
-          this.config.props = {
-            rendered: this.config.rendered || this.rendered
-          };
-        }
-      }
+//     this.roll = function(key, data){
+//       CombX.saxer.roll(key, data)
+//       return this
+//     }
+//     this.emit = this.roll
 
-      if (typeof id == 'string' || (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
-        if (this.isClient) return browserRender(id, X);
-      }
+//     this.append = function(obj){
+//       CombX.saxer.append(obj)
+//       Object.keys(obj).map(function(item){
+//         const lowCaseName = item.toLowerCase()
+//         that[lowCaseName] = function(param){
+//           that.dispatch(item, param)
+//         }
+//       })
+//       return this
+//     }
+//   }
 
-      var _props = this.config.props || {};
-      return React.createElement(X, _props);
-    }
-  }]);
+//   inject(src){
+//     if (this.isClient) {
+//       // const ij = inject()
+//       // if (this.config.theme && this.config.autoinject) {
+//       //   ij.css(['/css/m/'+this.config.theme])  //注入样式
+//       // }
+//       // if (typeof src == 'function') {
+//       //   src(ij)
+//       // }
+//       // return ij
+//     }
+//     return this
+//   }
 
-  return CombineClass;
-}();
+//   setConfig(config){
+//     this.config = config || {}
+//     return this
+//   }
+
+//   setProps(props){
+//     this.config.props = props
+//     return this
+//   }
+
+//   render(id, cb){
+//     id = id || this.config.container
+//     const X = this.x
+
+//     if (typeof id == 'function' || typeof cb == 'function') {
+//       this.config.rendered = typeof id == 'function' ? id : cb
+//     }
+//     if ( typeof this.config.rendered == 'function' || typeof this.rendered == 'function' ) {
+//       if (this.config.props) this.config.props.rendered = (this.config.rendered || this.rendered )
+//       else {
+//         this.config.props = {
+//           rendered: (this.config.rendered || this.rendered )
+//         }
+//       }
+//     }
+
+//     if (typeof id == 'string' || typeof id == 'object') {
+//       if (this.isClient) return browserRender(id, X)
+//     }
+
+//     const _props = this.config.props || {}
+//     return <X {..._props}/>
+//   }
+// }

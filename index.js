@@ -295,18 +295,18 @@ function browserRender(id, X){
   }
 }
 
-export class CombineClass{
-  constructor(config){
-    this.config = config
-    this.isClient = isClient
-    this.extension = {}
-    this.element
-    browserRender = this::browserRender
+export function CombineClass(config){
+  this.config = config
+  this.isClient = isClient
+  this.extension = {}
+  this.element
+  browserRender = this::browserRender
 
-    this.inject()
-  }
+  this.inject()
+}
 
-  combinex(GridsBase, Actions={}){
+CombineClass.prototype = {
+  combinex: (GridsBase, Actions={}) => {
     const that = this
     const CombX = combineX(GridsBase, Actions, this.extension)
     this.x = CombX.element
@@ -338,9 +338,9 @@ export class CombineClass{
       })
       return this
     }
-  }
+  },
 
-  inject(src){
+  inject: src => {
     if (this.isClient) {
       // const ij = inject()
       // if (this.config.theme && this.config.autoinject) {
@@ -352,19 +352,19 @@ export class CombineClass{
       // return ij
     }
     return this
-  }
+  },
 
-  setConfig(config){
+  setConfig: config => {
     this.config = config || {}
     return this
-  }
+  },
 
-  setProps(props){
+  setProps: props => {
     this.config.props = props
     return this
-  }
+  },
 
-  render(id, cb){
+  render: (id, cb) => {
     id = id || this.config.container
     const X = this.x
 
@@ -387,4 +387,100 @@ export class CombineClass{
     const _props = this.config.props || {}
     return <X {..._props}/>
   }
+
 }
+
+// export class CombineClass{
+//   constructor(config){
+//     super(config)
+//     this.config = config
+//     this.isClient = isClient
+//     this.extension = {}
+//     this.element
+//     browserRender = this::browserRender
+
+//     this.inject()
+//   }
+
+//   combinex(GridsBase, Actions={}){
+//     const that = this
+//     const CombX = combineX(GridsBase, Actions, this.extension)
+//     this.x = CombX.element
+//     this.globalName = CombX.globalName
+//     this.dispatch = CombX::CombX.dispatch
+//     this.hasMounted = CombX::CombX.hasMounted
+
+//     this.setActions = function(key, func){
+//       const _actions = {}
+//       _actions[key] = func
+//       CombX.saxer.setActions(_actions)
+//       return this
+//     }
+//     this.on = this.setActions
+
+//     this.roll = function(key, data){
+//       CombX.saxer.roll(key, data)
+//       return this
+//     }
+//     this.emit = this.roll
+
+//     this.append = function(obj){
+//       CombX.saxer.append(obj)
+//       Object.keys(obj).map(function(item){
+//         const lowCaseName = item.toLowerCase()
+//         that[lowCaseName] = function(param){
+//           that.dispatch(item, param)
+//         }
+//       })
+//       return this
+//     }
+//   }
+
+//   inject(src){
+//     if (this.isClient) {
+//       // const ij = inject()
+//       // if (this.config.theme && this.config.autoinject) {
+//       //   ij.css(['/css/m/'+this.config.theme])  //注入样式
+//       // }
+//       // if (typeof src == 'function') {
+//       //   src(ij)
+//       // }
+//       // return ij
+//     }
+//     return this
+//   }
+
+//   setConfig(config){
+//     this.config = config || {}
+//     return this
+//   }
+
+//   setProps(props){
+//     this.config.props = props
+//     return this
+//   }
+
+//   render(id, cb){
+//     id = id || this.config.container
+//     const X = this.x
+
+//     if (typeof id == 'function' || typeof cb == 'function') {
+//       this.config.rendered = typeof id == 'function' ? id : cb
+//     }
+//     if ( typeof this.config.rendered == 'function' || typeof this.rendered == 'function' ) {
+//       if (this.config.props) this.config.props.rendered = (this.config.rendered || this.rendered )
+//       else {
+//         this.config.props = {
+//           rendered: (this.config.rendered || this.rendered )
+//         }
+//       }
+//     }
+
+//     if (typeof id == 'string' || typeof id == 'object') {
+//       if (this.isClient) return browserRender(id, X)
+//     }
+
+//     const _props = this.config.props || {}
+//     return <X {..._props}/>
+//   }
+// }
