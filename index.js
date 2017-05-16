@@ -250,24 +250,22 @@ export default function combineX(ComposedComponent, opts, cb){
 		}
   }
 
-  class Query {
-    constructor(config){
-      this.element = store(globalName, Temp, extension)
-      this.timer
-      this.globalName = globalName
-      this.saxer = queryer
-      this.setActions = queryer.setActions
-      this.on = queryer.on
-      this.roll = queryer.roll
-      this.hasMounted = this::this.hasMounted
-    }
+  function Query(config){
+    this.config = config
+    this.element = store(globalName, Temp, extension)
+    this.timer
+    this.globalName = globalName
+    this.saxer = queryer
+    this.setActions = queryer.setActions
+    this.on = queryer.on
+    this.roll = queryer.roll
 
-    hasMounted(){
+    this.hasMounted = function(){
       const gname = this.globalName
       return componentMonuted.data[gname]
     }
 
-    dispatch(key, props){
+    this.dispatch = function(key, props){
       const that = this
       clearTimeout(this.timer)
       this.timer = setTimeout(function() {

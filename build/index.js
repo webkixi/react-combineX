@@ -316,40 +316,30 @@ function combineX(ComposedComponent, opts, cb) {
     return Temp;
   }(ComposedComponent);
 
-  var Query = function () {
-    function Query(config) {
-      _classCallCheck(this, Query);
+  function Query(config) {
+    this.config = config;
+    this.element = store(globalName, Temp, extension);
+    this.timer;
+    this.globalName = globalName;
+    this.saxer = queryer;
+    this.setActions = queryer.setActions;
+    this.on = queryer.on;
+    this.roll = queryer.roll;
 
-      this.element = store(globalName, Temp, extension);
-      this.timer;
-      this.globalName = globalName;
-      this.saxer = queryer;
-      this.setActions = queryer.setActions;
-      this.on = queryer.on;
-      this.roll = queryer.roll;
-      this.hasMounted = this.hasMounted.bind(this);
-    }
+    this.hasMounted = function () {
+      var gname = this.globalName;
+      return componentMonuted.data[gname];
+    };
 
-    _createClass(Query, [{
-      key: 'hasMounted',
-      value: function hasMounted() {
-        var gname = this.globalName;
-        return componentMonuted.data[gname];
-      }
-    }, {
-      key: 'dispatch',
-      value: function dispatch(key, props) {
-        var that = this;
-        clearTimeout(this.timer);
-        this.timer = setTimeout(function () {
-          var hasMounted = that.hasMounted();
-          if (hasMounted) dispatcher(key, props);
-        }, 0);
-      }
-    }]);
-
-    return Query;
-  }();
+    this.dispatch = function (key, props) {
+      var that = this;
+      clearTimeout(this.timer);
+      this.timer = setTimeout(function () {
+        var hasMounted = that.hasMounted();
+        if (hasMounted) dispatcher(key, props);
+      }, 0);
+    };
+  }
 
   if (returnReactClass) {
     return store(globalName, Temp, extension);
