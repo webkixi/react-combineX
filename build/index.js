@@ -438,6 +438,11 @@ var CombineClass = exports.CombineClass = function () {
       return this;
     }
   }, {
+    key: 'reRender',
+    value: function reRender() {
+      this.render();
+    }
+  }, {
     key: 'render',
     value: function render(id, cb) {
       id = id || this.config.container;
@@ -455,7 +460,10 @@ var CombineClass = exports.CombineClass = function () {
       }
 
       if (typeof id == 'string' || (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
-        if (this.isClient) return browserRender(id, X);
+        if (this.isClient) {
+          this.config.container = id;
+          return browserRender(id, X);
+        }
       }
 
       var _props = this.config.props || {};

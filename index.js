@@ -366,6 +366,10 @@ export class CombineClass{
     return this
   }
 
+  reRender(){
+    this.render()
+  }
+
   render(id, cb){
     id = id || this.config.container
     const X = this.x
@@ -383,7 +387,10 @@ export class CombineClass{
     }
 
     if (typeof id == 'string' || typeof id == 'object') {
-      if (this.isClient) return browserRender(id, X)
+      if (this.isClient) {
+        this.config.container = id
+        return browserRender(id, X)
+      }
     }
 
     const _props = this.config.props || {}
