@@ -49,8 +49,9 @@ var context = function (C) {
 
 // import React from 'react';
 var React = typeof React != 'undefined' ? React : require('react');
+// const reactDom    = ( C => (typeof ReactDOM != 'undefined' || typeof ReactDom != 'undefined') ? (ReactDOM||ReactDom) : C ? require('react-dom') : require('react-dom/server'))(isClient)
 var reactDom = function (C) {
-  return typeof ReactDOM != 'undefined' || typeof ReactDom != 'undefined' ? ReactDOM || ReactDom : C ? require('react-dom') : require('react-dom/server');
+  return typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server');
 }(isClient);
 var findDOMNode = function (C) {
   return C ? reactDom.findDOMNode : function () {};
