@@ -1,17 +1,14 @@
 /**
- * itemHlc  [react的高阶组件，给子组件绑定itemMethod方法，componentDidMount后]
- * ComposedComponent  {React-Element}   [被包围的子组件]
+ * React-combinex
+ * 增强react的用法，贴近jquery的使用方式
  */
-
 const isClient = typeof window !== 'undefined'
 const context = ( C => C ? window : global)(isClient) || {}
-import SAX from 'fkp-sax'
 import cloneDeep from 'lodash.clonedeep'
 import merge from 'lodash.merge'
 import uniqueId from 'lodash.uniqueid'
-// import React from 'react';
+const SAX = ( ()=> typeof SAX != 'undefined' ? SAX : require('fkp-sax'))()
 const React = (typeof React != 'undefined' ? React : require('react'))
-// const reactDom    = ( C => (typeof ReactDOM != 'undefined' || typeof ReactDom != 'undefined') ? (ReactDOM||ReactDom) : C ? require('react-dom') : require('react-dom/server'))(isClient)
 const reactDom = ( C => typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server'))(isClient)
 const findDOMNode = ( C => C ? reactDom.findDOMNode : function(){} )(isClient)
 const render      = ( C => C ? reactDom.render : reactDom.renderToString)(isClient)

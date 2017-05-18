@@ -13,10 +13,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 exports.default = combineX;
 
-var _fkpSax = require('fkp-sax');
-
-var _fkpSax2 = _interopRequireDefault(_fkpSax);
-
 var _lodash = require('lodash.clonedeep');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -38,18 +34,18 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
- * itemHlc  [react的高阶组件，给子组件绑定itemMethod方法，componentDidMount后]
- * ComposedComponent  {React-Element}   [被包围的子组件]
+ * React-combinex
+ * 增强react的用法，贴近jquery的使用方式
  */
-
 var isClient = typeof window !== 'undefined';
 var context = function (C) {
   return C ? window : global;
 }(isClient) || {};
 
-// import React from 'react';
+var SAX = function () {
+  return typeof SAX != 'undefined' ? SAX : require('fkp-sax');
+}();
 var React = typeof React != 'undefined' ? React : require('react');
-// const reactDom    = ( C => (typeof ReactDOM != 'undefined' || typeof ReactDom != 'undefined') ? (ReactDOM||ReactDom) : C ? require('react-dom') : require('react-dom/server'))(isClient)
 var reactDom = function (C) {
   return typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server');
 }(isClient);
@@ -60,7 +56,7 @@ var render = function (C) {
   return C ? reactDom.render : reactDom.renderToString;
 }(isClient);
 
-var componentMonuted = (0, _fkpSax2.default)('ReactComponentMonuted');
+var componentMonuted = SAX('ReactComponentMonuted');
 var store = function (sax) {
   try {
     if (!sax) throw 'storehlc depend on SAX, SAX is fkp-sax, is a Global fun';
@@ -108,7 +104,7 @@ var store = function (sax) {
   } catch (e) {
     return ComposedComponent;
   }
-}(_fkpSax2.default);
+}(SAX);
 
 var isFunction = function isFunction(target) {
   return typeof target == 'function';
@@ -214,7 +210,7 @@ function combineX(ComposedComponent, opts, cb) {
 
   var globalName = (0, _lodash6.default)('Combinex_');
 
-  var queryer = (0, _fkpSax2.default)(globalName, opts || {});
+  var queryer = SAX(globalName, opts || {});
 
   // will return React class for type 2
   var returnReactClass = false;
