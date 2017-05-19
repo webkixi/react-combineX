@@ -290,6 +290,7 @@ function combineX(ComposedComponent, opts, cb) {
         var that = findDOMNode(this);
 
         var _ctx = {
+          state: queryer.data.originalState[globalName],
           dispatch: dispatcher,
           refs: this.refs
         };
@@ -355,6 +356,12 @@ function browserRender(id, X) {
   } else if ((typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object' && id.nodeType) {
     return render(React.createElement(X, this.config.props), id);
   }
+}
+
+function _rendered(ctx, cb) {
+  return function (dom, intent) {
+    cb.call(this, dom, intent, ctx);
+  };
 }
 
 var CombineClass = exports.CombineClass = function () {
@@ -449,9 +456,10 @@ var CombineClass = exports.CombineClass = function () {
         this.config.rendered = typeof id == 'function' ? id : cb;
       }
       if (typeof this.config.rendered == 'function' || typeof this.rendered == 'function') {
-        if (this.config.props) this.config.props.rendered = this.config.rendered || this.rendered;else {
+        var rended = this.config.rendered || this.rendered;
+        if (this.config.props) this.config.props.rendered = _rendered(this, rended);else {
           this.config.props = {
-            rendered: this.config.rendered || this.rendered
+            rendered: _rendered(this, rended)
           };
         }
       }

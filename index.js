@@ -224,6 +224,7 @@ export default function combineX(ComposedComponent, opts, cb){
 			let that = findDOMNode(this);
 
       const _ctx = {
+        state: queryer.data.originalState[globalName],
         dispatch: dispatcher,
         refs: this.refs
       }
@@ -292,6 +293,12 @@ function browserRender(id, X){
 
   else if (typeof id == 'object' && id.nodeType) {
     return render(<X {...this.config.props}/>, id)
+  }
+}
+
+function _rendered(ctx, cb){
+  return function(dom, intent){
+    cb.call(this, dom, intent, ctx)
   }
 }
 
@@ -376,10 +383,11 @@ export class CombineClass{
       this.config.rendered = typeof id == 'function' ? id : cb
     }
     if ( typeof this.config.rendered == 'function' || typeof this.rendered == 'function' ) {
-      if (this.config.props) this.config.props.rendered = (this.config.rendered || this.rendered )
+      const rended = (this.config.rendered || this.rendered )
+      if (this.config.props) this.config.props.rendered = _rendered(this, rended)
       else {
         this.config.props = {
-          rendered: (this.config.rendered || this.rendered )
+          rendered: _rendered(this, rended)
         }
       }
     }
