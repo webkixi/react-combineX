@@ -244,6 +244,9 @@ export default function combineX(ComposedComponent, opts, cb){
 
       const gname = this.globalName
       componentMonuted.data[gname] = true
+
+      queryer.roll('rendered')
+
       super.componentDidMount ? super.componentDidMount() : ''
       // ReactComponentMonuted = true
 		}
@@ -305,6 +308,7 @@ function _rendered(ctx, cb){
 export class CombineClass{
   constructor(config){
     this.config = config
+    this.globalName = globalName
     this.isClient = isClient
     this.extension = {}
     this.element
@@ -317,7 +321,6 @@ export class CombineClass{
     const that = this
     const CombX = combineX(GridsBase, Actions, this.extension)
     this.x = CombX.element
-    this.globalName = CombX.globalName
     this.dispatch = CombX::CombX.dispatch
     this.hasMounted = CombX::CombX.hasMounted
 

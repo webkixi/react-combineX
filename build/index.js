@@ -306,6 +306,9 @@ function combineX(ComposedComponent, opts, cb) {
 
         var gname = this.globalName;
         componentMonuted.data[gname] = true;
+
+        queryer.roll('rendered');
+
         _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
         // ReactComponentMonuted = true
       }
@@ -369,6 +372,7 @@ var CombineClass = exports.CombineClass = function () {
     _classCallCheck(this, CombineClass);
 
     this.config = config;
+    this.globalName = globalName;
     this.isClient = isClient;
     this.extension = {};
     this.element;
@@ -385,7 +389,6 @@ var CombineClass = exports.CombineClass = function () {
       var that = this;
       var CombX = combineX(GridsBase, Actions, this.extension);
       this.x = CombX.element;
-      this.globalName = CombX.globalName;
       this.dispatch = CombX.dispatch.bind(CombX);
       this.hasMounted = CombX.hasMounted.bind(CombX);
 
