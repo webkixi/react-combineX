@@ -210,7 +210,10 @@ function combineX(ComposedComponent, opts, cb) {
 
   var globalName = (0, _lodash6.default)('Combinex_');
 
-  var queryer = SAX(globalName, opts || {});
+  var queryer = SAX(globalName);
+  if (opts) {
+    queryer.append(opts);
+  }
 
   // will return React class for type 2
   var returnReactClass = false;
@@ -353,11 +356,12 @@ function combineX(ComposedComponent, opts, cb) {
 
 // CombineClass
 
-function browserRender(id, X) {
+function browserRender(id, X, config) {
+  var props = config.props;
   if (typeof id == 'string') {
-    return render(React.createElement(X, this.config.props), document.getElementById(id));
+    return render(React.createElement(X, props), document.getElementById(id));
   } else if ((typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object' && id.nodeType) {
-    return render(React.createElement(X, this.config.props), id);
+    return render(React.createElement(X, props), id);
   }
 }
 
@@ -470,7 +474,7 @@ var CombineClass = exports.CombineClass = function () {
       if (typeof id == 'string' || (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
         if (this.isClient) {
           this.config.container = id;
-          return browserRender(id, X);
+          return browserRender(id, X, this.config);
         }
       }
 

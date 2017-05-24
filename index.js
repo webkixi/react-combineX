@@ -146,7 +146,8 @@ export default function combineX(ComposedComponent, opts, cb){
 
   const globalName = uniqueId('Combinex_')
 
-  let queryer = SAX(globalName, opts||{})
+  let queryer = SAX(globalName)
+  if (opts) { queryer.append(opts) }
 
   // will return React class for type 2
   let returnReactClass = false
@@ -289,13 +290,14 @@ export default function combineX(ComposedComponent, opts, cb){
 
 // CombineClass
 
-function browserRender(id, X){
+function browserRender(id, X, config){
+  const props = config.props
   if (typeof id == 'string') {
-    return render(<X {...this.config.props}/>, document.getElementById(id))
+    return render(<X {...props}/>, document.getElementById(id))
   }
 
   else if (typeof id == 'object' && id.nodeType) {
-    return render(<X {...this.config.props}/>, id)
+    return render(<X {...props}/>, id)
   }
 }
 
@@ -398,7 +400,7 @@ export class CombineClass{
     if (typeof id == 'string' || typeof id == 'object') {
       if (this.isClient) {
         this.config.container = id
-        return browserRender(id, X)
+        return browserRender(id, X, this.config)
       }
     }
 
