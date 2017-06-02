@@ -166,6 +166,8 @@ function dealWithReactElement(CComponent, opts, cb) {
           hide: this.hide
         };
 
+        _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this) ? _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this).call(this) : '';
+
         if (typeof this.props.itemDefaultMethod == 'function') {
           self.props.itemDefaultMethod.call(_ctx, that, self.intent);
         }
@@ -174,8 +176,6 @@ function dealWithReactElement(CComponent, opts, cb) {
           var imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod;
           imd.call(_ctx, that, self.intent);
         }
-
-        _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this) ? _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this).call(this) : '';
       }
     }, {
       key: 'render',
@@ -292,6 +292,8 @@ function combineX(ComposedComponent, opts, cb) {
         var self = this;
         var that = findDOMNode(this);
 
+        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
+
         var _ctx = {
           state: queryer.data.originalState[globalName],
           dispatch: dispatcher,
@@ -311,9 +313,6 @@ function combineX(ComposedComponent, opts, cb) {
         componentMonuted.data[gname] = true;
 
         queryer.roll('rendered');
-
-        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
-        // ReactComponentMonuted = true
       }
     }]);
 

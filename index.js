@@ -103,6 +103,8 @@ function dealWithReactElement(CComponent, opts, cb){
         hide: this.hide
       }
 
+      super.componentDidMount ? super.componentDidMount() : ''
+
       if( typeof this.props.itemDefaultMethod == 'function' ){
         self.props.itemDefaultMethod.call(_ctx, that, self.intent)
       }
@@ -115,8 +117,6 @@ function dealWithReactElement(CComponent, opts, cb){
         const imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod
         imd.call(_ctx, that, self.intent)
       }
-
-      super.componentDidMount ? super.componentDidMount() : ''
     }
     render(){
       return this.state.show ? CComponent : <span/>
@@ -224,6 +224,8 @@ export default function combineX(ComposedComponent, opts, cb){
 			let self = this
 			let that = findDOMNode(this);
 
+      super.componentDidMount ? super.componentDidMount() : ''
+      
       const _ctx = {
         state: queryer.data.originalState[globalName],
         dispatch: dispatcher,
@@ -247,9 +249,6 @@ export default function combineX(ComposedComponent, opts, cb){
       componentMonuted.data[gname] = true
 
       queryer.roll('rendered')
-
-      super.componentDidMount ? super.componentDidMount() : ''
-      // ReactComponentMonuted = true
 		}
   }
 
