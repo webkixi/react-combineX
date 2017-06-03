@@ -286,6 +286,23 @@ export default function combineX(ComposedComponent, opts, cb){
   }
 }
 
+combineX.wrap = function(ComposedComponent, opts, cb){
+  if (!opts) opts = {type: 'reactClass'}
+  
+  if (typeof opts == 'function') {
+    cb = opts
+    opts = {
+      type: 'reactClass'
+    }
+  }
+
+  if (typeof opts == 'object') {
+    opts.type = 'reactClass'
+  }
+
+  return combineX(ComposedComponent, opts, cb)
+}
+
 
 // CombineClass
 
@@ -331,7 +348,13 @@ export class CombineClass{
       CombX.saxer.setActions(_actions)
       return this
     }
-    this.on = this.setActions
+
+    this.on = (key, fun)=>{
+      CombX.saxer.on(key, fun)
+      return this
+    }
+
+    this.emit = (key, data) => CombX.saxer.roll(key, data)
 
     this.roll = function(key, data){
       CombX.saxer.roll(key, data)

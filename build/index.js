@@ -353,6 +353,23 @@ function combineX(ComposedComponent, opts, cb) {
   }
 }
 
+combineX.wrap = function (ComposedComponent, opts, cb) {
+  if (!opts) opts = { type: 'reactClass' };
+
+  if (typeof opts == 'function') {
+    cb = opts;
+    opts = {
+      type: 'reactClass'
+    };
+  }
+
+  if ((typeof opts === 'undefined' ? 'undefined' : _typeof(opts)) == 'object') {
+    opts.type = 'reactClass';
+  }
+
+  return combineX(ComposedComponent, opts, cb);
+};
+
 // CombineClass
 
 function browserRender(id, X, config) {
@@ -386,6 +403,8 @@ var CombineClass = exports.CombineClass = function () {
   _createClass(CombineClass, [{
     key: 'combinex',
     value: function combinex(GridsBase) {
+      var _this4 = this;
+
       var Actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var that = this;
@@ -401,7 +420,15 @@ var CombineClass = exports.CombineClass = function () {
         CombX.saxer.setActions(_actions);
         return this;
       };
-      this.on = this.setActions;
+
+      this.on = function (key, fun) {
+        CombX.saxer.on(key, fun);
+        return _this4;
+      };
+
+      this.emit = function (key, data) {
+        return CombX.saxer.roll(key, data);
+      };
 
       this.roll = function (key, data) {
         CombX.saxer.roll(key, data);
