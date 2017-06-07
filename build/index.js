@@ -484,18 +484,21 @@ var CombineClass = exports.CombineClass = function () {
     value: function render(id, cb) {
       id = id || this.config.container;
       var X = this.x;
+      var _props = this.props || this.config.props;
 
       if (typeof id == 'function' || typeof cb == 'function') {
         this.config.rendered = typeof id == 'function' ? id : cb;
       }
       if (typeof this.config.rendered == 'function' || typeof this.rendered == 'function') {
         var rended = this.config.rendered || this.rendered;
-        if (this.config.props) this.config.props.rendered = _rendered(this, rended);else {
-          this.config.props = {
+        if (_props) _props.rendered = _rendered(this, rended);else {
+          _props = {
             rendered: _rendered(this, rended)
           };
         }
       }
+
+      this.config.props = _props || {};
 
       if (typeof id == 'string' || (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
         if (this.isClient) {
@@ -504,7 +507,7 @@ var CombineClass = exports.CombineClass = function () {
         }
       }
 
-      var _props = this.config.props || {};
+      _props = _props || {};
       return React.createElement(X, _props);
     }
   }]);
