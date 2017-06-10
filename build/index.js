@@ -238,7 +238,7 @@ function combineX(ComposedComponent, opts, cb) {
    * @type {[type]}
    */
 
-  function dispatcher(key, props) {
+  function dispatcher(key, props, cbx) {
     var ctx = queryer.store.ctx[globalName];
 
     var liveState = (0, _lodash4.default)({}, ctx.state);
@@ -246,6 +246,7 @@ function combineX(ComposedComponent, opts, cb) {
     // const oState = JSON.parse(queryer.data.originalState[globalName])
 
     var queryActions = queryer.data;
+    cbx.data = liveState;
 
     // const _state = {
     //   curState: liveState,
@@ -343,7 +344,7 @@ function combineX(ComposedComponent, opts, cb) {
       clearTimeout(this.timer);
       this.timer = setTimeout(function () {
         var hasMounted = that.hasMounted();
-        if (hasMounted) dispatcher(key, props);
+        if (hasMounted) dispatcher(key, props, that);
       }, 0);
     };
   };
@@ -385,6 +386,7 @@ function browserRender(id, X, config) {
 
 function _rendered(ctx, cb) {
   return function (dom, intent) {
+    ctx.elements = this.refs;
     cb.call(this, dom, intent, ctx);
   };
 }
@@ -396,7 +398,8 @@ var CombineClass = exports.CombineClass = function () {
     this.config = config;
     this.isClient = isClient;
     this.extension = {};
-    this.element;
+    this.elements; // rendered方法中赋值，react class的componentDidMount之后将refs的内容赋值给该变量
+    this.data = this.config.props.data; // 用于实例中做数据查询，该data同步于react class的state.data
     browserRender = browserRender.bind(this);
 
     this.inject();
