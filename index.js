@@ -324,6 +324,7 @@ function browserRender(id, X, config){
 function _rendered(ctx, cb){
   return function(dom, intent){
     ctx.elements = this.refs
+    ctx.data = ctx.combx.data ? ctx.combx.data : ctx.config.props.data  // 用于实例中做数据查询，该data同步于react class的state.data，dispatcher中动态更新该值
     cb.call(this, dom, intent, ctx)
   }
 }
@@ -412,7 +413,6 @@ export class CombineClass{
     id = id || this.config.container
     const X = this.x
     let _props = this.props || this.config.props
-    this.data = this.combx.data ? this.combx.data : this.config.props.data  // 用于实例中做数据查询，该data同步于react class的state.data，dispatcher中动态更新该值
     
     if (typeof id == 'function' || typeof cb == 'function') {
       this.config.rendered = typeof id == 'function' ? id : cb
