@@ -181,21 +181,21 @@ export default function combineX(ComposedComponent, opts, cb){
    * @type {[type]}
    */
 
-  function dispatcher(key, props, cbx){
+  function dispatcher(key, props, QueryCtx){
     const ctx = queryer.store.ctx[globalName]
 
-    const liveState = merge({}, ctx.state)
+    const liveState = cloneDeep(ctx.state)
     const oState = queryer.data.originalState[globalName]
     // const oState = JSON.parse(queryer.data.originalState[globalName])
 
     const queryActions = queryer.data
-    cbx.data = liveState
 
     // const _state = {
     //   curState: liveState,
     // }
 
     queryActions.curState = liveState
+    QueryCtx.data = liveState.data
 
     if (queryActions[key]) {
       const _tmp = queryActions[key].call(queryActions, oState, props)
@@ -230,7 +230,7 @@ export default function combineX(ComposedComponent, opts, cb){
       super.componentDidMount ? super.componentDidMount() : ''
 
       const _ctx = {
-        state: queryer.data.originalState[globalName],
+        // state: queryer.data.originalState[globalName],
         dispatch: dispatcher,
         refs: this.refs
       }
@@ -265,6 +265,7 @@ export default function combineX(ComposedComponent, opts, cb){
       this.setActions = queryer.setActions
       this.on = queryer.on
       this.roll = queryer.roll
+      this.data
 
       this.hasMounted = function(){
         const gname = this.globalName
@@ -333,7 +334,6 @@ export class CombineClass{
     this.isClient = isClient
     this.extension = {}
     this.elements   // rendered方法中赋值，react class的componentDidMount之后将refs的内容赋值给该变量
-    this.data = this.config.props.data  // 用于实例中做数据查询，该data同步于react class的state.data
     browserRender = this::browserRender
 
     this.inject()
@@ -342,6 +342,7 @@ export class CombineClass{
   combinex(GridsBase, Actions={}){
     const that = this
     const CombX = combineX(GridsBase, Actions, this.extension)
+    this.combx = CombX
     this.globalName = CombX.globalName
     this.x = CombX.element
     this.dispatch = CombX::CombX.dispatch
@@ -411,7 +412,8 @@ export class CombineClass{
     id = id || this.config.container
     const X = this.x
     let _props = this.props || this.config.props
-
+    this.data = this.combx.data ? this.combx.data : this.config.props.data  // 用于实例中做数据查询，该data同步于react class的state.data，dispatcher中动态更新该值
+    
     if (typeof id == 'function' || typeof cb == 'function') {
       this.config.rendered = typeof id == 'function' ? id : cb
     }
