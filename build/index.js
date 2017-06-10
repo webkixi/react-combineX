@@ -247,12 +247,14 @@ function combineX(ComposedComponent, opts, cb) {
 
     var queryActions = queryer.data;
 
-    var _state = {
-      curState: liveState
-    };
+    // const _state = {
+    //   curState: liveState,
+    // }
+
+    queryActions.curState = liveState;
 
     if (queryActions[key]) {
-      var _tmp = queryActions[key].call(_state, oState, props);
+      var _tmp = queryActions[key].call(queryActions, oState, props);
       if (_tmp) {
         var target = (0, _lodash4.default)({}, oState, _tmp);
         ctx.setState(target);

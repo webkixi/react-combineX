@@ -190,12 +190,14 @@ export default function combineX(ComposedComponent, opts, cb){
 
     const queryActions = queryer.data
 
-    const _state = {
-      curState: liveState,
-    }
+    // const _state = {
+    //   curState: liveState,
+    // }
+
+    queryActions.curState = liveState
 
     if (queryActions[key]) {
-      const _tmp = queryActions[key].call(_state, oState, props)
+      const _tmp = queryActions[key].call(queryActions, oState, props)
       if (_tmp) {
         const target = merge({}, oState, _tmp)
         ctx.setState(target)
@@ -225,7 +227,7 @@ export default function combineX(ComposedComponent, opts, cb){
 			let that = findDOMNode(this);
 
       super.componentDidMount ? super.componentDidMount() : ''
-      
+
       const _ctx = {
         state: queryer.data.originalState[globalName],
         dispatch: dispatcher,
@@ -288,7 +290,7 @@ export default function combineX(ComposedComponent, opts, cb){
 
 combineX.wrap = function(ComposedComponent, opts, cb){
   if (!opts) opts = {type: 'reactClass'}
-  
+
   if (typeof opts == 'function') {
     cb = opts
     opts = {
