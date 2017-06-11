@@ -349,30 +349,43 @@ export class CombineClass{
     this.dispatch = CombX::CombX.dispatch
     this.hasMounted = CombX::CombX.hasMounted
 
-    this.setActions = function(key, func){
-      const _actions = {}
-      _actions[key] = func
-      CombX.saxer.setActions(_actions)
-      return this
+
+    let keynames = Object.keys(Actions)
+    const lowKeyNames = keynames.map( item => item.toLowerCase() )
+    const upKeyNames = keynames
+
+    for (let ii=0; ii<lowKeyNames.length; ii++) {
+      const actName = upKeyNames[ii]
+      this['$'+lowKeyNames[ii]] = function(param){
+        this.dispatch(actName, param)
+        return this
+      }
     }
+
+    // this.setActions = function(key, func){
+    //   const _actions = {}
+    //   _actions[key] = func
+    //   CombX.saxer.setActions(_actions)
+    //   return this
+    // }
 
     this.on = (key, fun)=>{
       CombX.saxer.on(key, fun)
       return this
     }
 
-    this.emit = (key, data) => CombX.saxer.roll(key, data)
-
     this.roll = function(key, data){
       CombX.saxer.roll(key, data)
       return this
     }
-    this.emit = this.roll
 
-    this.append = function(obj){
+    this.emit = this.roll
+    
+
+    this.appendActions = function(obj){
       CombX.saxer.append(obj)
       Object.keys(obj).map(function(item){
-        const lowCaseName = item.toLowerCase()
+        const lowCaseName = '$'+item.toLowerCase()
         that[lowCaseName] = function(param){
           that.dispatch(item, param)
         }
