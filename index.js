@@ -381,6 +381,14 @@ export class CombineClass{
     }
   }
 
+  extend(exts){
+    if (typeof exts == 'object') {
+      Object.keys(exts).map( _name => {
+        this[_name] = exts[_name]
+      })
+    }
+  }
+
   inject(src){
     if (this.isClient) {
       // const ij = inject()
@@ -413,7 +421,7 @@ export class CombineClass{
     id = id || this.config.container
     const X = this.x
     let _props = this.props || this.config.props
-    
+
     if (typeof id == 'function' || typeof cb == 'function') {
       this.config.rendered = typeof id == 'function' ? id : cb
     }
