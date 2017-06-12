@@ -200,8 +200,8 @@ export default function combineX(ComposedComponent, opts, cb){
     if (queryActions[key]) {
       const _tmp = queryActions[key].call(queryActions, oState, props)
       if (_tmp) {
-        const target = merge({}, oState, _tmp)
-        ctx.setState(target)
+        // const target = merge({}, oState, _tmp)
+        ctx.setState(_tmp)
       }
     }
   }
@@ -380,7 +380,7 @@ export class CombineClass{
     }
 
     this.emit = this.roll
-    
+
 
     this.appendActions = function(obj){
       CombX.saxer.append(obj)
