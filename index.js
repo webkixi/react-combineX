@@ -13,6 +13,10 @@ const reactDom = ( C => typeof ReactDOM != 'undefined' ? ReactDOM : typeof React
 const findDOMNode = ( C => C ? reactDom.findDOMNode : function(){} )(isClient)
 const render      = ( C => C ? reactDom.render : reactDom.renderToString)(isClient)
 
+if (!context.SAX) {
+  context.SAX = SAX
+}
+
 const componentMonuted = SAX('ReactComponentMonuted')
 const store = ( sax => {
   try {
