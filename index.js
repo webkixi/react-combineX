@@ -378,6 +378,11 @@ export class CombineClass{
       return this
     }
 
+    this.off = (key) => {
+      CombX.saxer.off(key)
+      return this
+    }
+
     this.roll = function(key, data){
       CombX.saxer.roll(key, data)
       return this
