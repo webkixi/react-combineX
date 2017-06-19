@@ -79,7 +79,11 @@ const didMount = function(ctx, opts, cb, queryer){
     const imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod
     imd.call(ctx, that, this.intent)
   }
-  queryer.roll('rendered')
+  queryer.roll('rendered', {
+    dom : that,
+    opts: opts,
+    ctx : ctx
+  })
 }
 
 
