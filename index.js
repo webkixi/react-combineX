@@ -76,7 +76,7 @@ const didMount = function(ctx, opts, cb, queryer){
     typeof this.props.rendered == 'function' ||
     typeof this.props.itemMethod == 'function'
   ) {
-    const imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod
+    const imd = isFunction(cb) ? cb : isFunction(opts.rendered) ? opts.rendered : (this.props.rendered || this.props.itemMethod)
     imd.call(ctx, that, this.intent)
   }
   queryer.roll('rendered', {
@@ -287,7 +287,7 @@ export default function combineX(ComposedComponent, opts, cb){
   }
 }
 
-export function wrap(ComposedComponent, opts, cb){
+export function _wrap(ComposedComponent, opts, cb){
   if (!opts) opts = {type: 'reactClass'}
 
   if (typeof opts == 'function') {
