@@ -65,13 +65,30 @@ const isFunction = function(target){
   return typeof target == 'function'
 }
 
+const didMount = function(ctx, opts, cb, queryer){
+  let that = findDOMNode(this)
+  if( typeof this.props.itemDefaultMethod == 'function' ){
+    this.props.itemDefaultMethod.call(ctx, that, this.intent)
+  }
+
+  if (
+    typeof cb == 'function' ||
+    typeof this.props.rendered == 'function' ||
+    typeof this.props.itemMethod == 'function'
+  ) {
+    const imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod
+    imd.call(ctx, that, this.intent)
+  }
+  queryer.roll('rendered')
+}
+
 
 /**
  * [dealWithReactElement 处理传入为react element 的场景，一般用于wrap]
  * @param  {react element} CComponent [description]
  * @return {react class}            [description]
  */
-function dealWithReactElement(CComponent, opts, cb){
+function dealWithReactElement(CComponent, opts, cb, queryer){
   return class extends React.Component {
     constructor(props){
       super(props)
@@ -108,19 +125,7 @@ function dealWithReactElement(CComponent, opts, cb){
       }
 
       super.componentDidMount ? super.componentDidMount() : ''
-
-      if( typeof this.props.itemDefaultMethod == 'function' ){
-        self.props.itemDefaultMethod.call(_ctx, that, self.intent)
-      }
-
-      if (
-        typeof cb == 'function' ||
-        typeof this.props.rendered == 'function' ||
-        typeof this.props.itemMethod == 'function'
-      ) {
-        const imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod
-        imd.call(_ctx, that, self.intent)
-      }
+      didMount.call(this, _ctx, opts, cb, queryer)
     }
     render(){
       return this.state.show ? CComponent : <span/>
@@ -171,7 +176,7 @@ export default function combineX(ComposedComponent, opts, cb){
    * @return [type]         [description]
    */
   if (React.isValidElement(ComposedComponent)) {
-    return dealWithReactElement(ComposedComponent, opts, cb)
+    return dealWithReactElement(ComposedComponent, opts, cb, queryer)
   }
 
 
@@ -231,31 +236,15 @@ export default function combineX(ComposedComponent, opts, cb){
 			let self = this
 			let that = findDOMNode(this);
 
-      super.componentDidMount ? super.componentDidMount() : ''
-
       const _ctx = {
         // state: queryer.data.originalState[globalName],
         dispatch: dispatcher,
         refs: this.refs
       }
+      super.componentDidMount ? super.componentDidMount() : ''
+      didMount.call(this, _ctx, opts, cb, queryer)
 
-			if( typeof this.props.itemDefaultMethod == 'function' ){
-        self.props.itemDefaultMethod.call(_ctx, that, self.intent)
-			}
-
-      if (
-        typeof cb == 'function' ||
-        typeof this.props.rendered == 'function' ||
-        typeof this.props.itemMethod == 'function'
-      ) {
-        const imd = isFunction(cb) ? cb : this.props.rendered || this.props.itemMethod
-        imd.call(_ctx, that, self.intent)
-      }
-
-      const gname = this.globalName
-      componentMonuted.data[gname] = true
-
-      queryer.roll('rendered')
+      componentMonuted.data[this.globalName] = true
 		}
   }
 
