@@ -34,6 +34,7 @@ const store = ( sax => {
           componentMonuted.append(unmounted)
 
           const queryer = sax(id)
+          this.saxer = queryer
           queryer.data.originalState
           ? queryer.data.originalState[id] = cloneDeep(this.state)
           : ( ()=>{
@@ -341,6 +342,7 @@ export class CombineClass{
     const that = this
     const CombX = combineX(GridsBase, Actions, this.extension)
     this.combx = CombX
+    this.saxer = CombX.saxer
     this.globalName = CombX.globalName
     this.x = CombX.element
     this.dispatch = CombX::CombX.dispatch
