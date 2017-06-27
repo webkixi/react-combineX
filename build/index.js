@@ -122,8 +122,9 @@ var didMount = function didMount(ctx, opts, cb, queryer) {
     this.props.itemDefaultMethod.call(ctx, that, this.intent);
   }
 
-  if (typeof cb == 'function' || typeof this.props.rendered == 'function' || typeof this.props.itemMethod == 'function') {
+  if (typeof cb == 'function' || typeof opts.rendered == 'function' || typeof this.props.rendered == 'function' || typeof this.props.itemMethod == 'function') {
     var imd = isFunction(cb) ? cb : isFunction(opts.rendered) ? opts.rendered : this.props.rendered || this.props.itemMethod;
+    if (!imd) imd = function imd() {};
     imd.call(ctx, that, this.intent);
   }
   queryer.roll('rendered', {
@@ -131,6 +132,15 @@ var didMount = function didMount(ctx, opts, cb, queryer) {
     opts: opts,
     ctx: ctx
   });
+};
+
+var unMount = function unMount(opts, queryer) {
+  var that = findDOMNode(this);
+  if (typeof opts.leave == 'function' || typeof this.props.leave == 'function') {
+    var imd = isFunction(opts.leave) ? opts.leave : this.props.leave;
+    if (!imd) imd = function imd() {};
+    imd.call(ctx, that, this.intent);
+  }
 };
 
 /**
@@ -173,6 +183,11 @@ function dealWithReactElement(CComponent, opts, cb, queryer) {
         this.setState({
           show: false
         });
+      }
+    }, {
+      key: 'componentWillUnmount',
+      value: function componentWillUnmount() {
+        unMount.call(this, opts, queryer);
       }
     }, {
       key: 'componentDidUpdate',
@@ -295,13 +310,15 @@ function combineX(ComposedComponent, opts, cb) {
     _createClass(Temp, [{
       key: 'componentWillUnmount',
       value: function componentWillUnmount() {
-        var gname = this.globalName;
-        componentMonuted.data[gname] = false;
-        // ReactComponentMonuted = false
+        // const gname = this.globalName
+        // componentMonuted.data[gname] = false
+        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentWillUnmount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentWillUnmount', this).call(this) : '';
+        unMount.call(this, opts, queryer);
       }
     }, {
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
+        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
         this.componentDidMount();
       }
     }, {
@@ -404,6 +421,7 @@ var CombineClass = exports.CombineClass = function () {
     this.isClient = isClient;
     this.extension = {};
     this.elements; // rendered方法中赋值，react class的componentDidMount之后将refs的内容赋值给该变量
+    this.leave; //unmounted 触发的方法
     browserRender = browserRender.bind(this);
 
     this.inject();
@@ -539,7 +557,7 @@ var CombineClass = exports.CombineClass = function () {
           };
         }
       }
-
+      _props.leave = this.leave || this.config.leave || this.config.props.leave;
       this.config.props = _props || {};
 
       if (typeof id == 'string' || (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
