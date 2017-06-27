@@ -139,7 +139,7 @@ var unMount = function unMount(opts, queryer) {
   if (typeof opts.leave == 'function' || typeof this.props.leave == 'function') {
     var imd = isFunction(opts.leave) ? opts.leave : this.props.leave;
     if (!imd) imd = function imd() {};
-    imd.call(ctx, that, this.intent);
+    imd(that, this.intent);
   }
 };
 

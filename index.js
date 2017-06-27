@@ -97,7 +97,7 @@ const unMount = function(opts, queryer){
   ) {
     let imd = isFunction(opts.leave) ? opts.leave : this.props.leave
     if (!imd) imd = function(){}
-    imd.call(ctx, that, this.intent)
+    imd(that, this.intent)
   }
 }
 
