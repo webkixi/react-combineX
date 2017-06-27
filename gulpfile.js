@@ -12,7 +12,7 @@ gulp.task("default",function(){
       gulp.src("./index.js"),
       sourcemaps.init(),
       babel({presets:[breact, es2015, stage0]}),
-      uglify(),
+      // uglify(),
       sourcemaps.write('./maps'),
       gulp.dest('./build')
     ]
