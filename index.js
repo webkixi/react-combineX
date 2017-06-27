@@ -74,10 +74,12 @@ const didMount = function(ctx, opts, cb, queryer){
 
   if (
     typeof cb == 'function' ||
+    typeof opts.rendered == 'function' ||
     typeof this.props.rendered == 'function' ||
     typeof this.props.itemMethod == 'function'
   ) {
-    const imd = isFunction(cb) ? cb : isFunction(opts.rendered) ? opts.rendered : (this.props.rendered || this.props.itemMethod)
+    let imd = isFunction(cb) ? cb : isFunction(opts.rendered) ? opts.rendered : (this.props.rendered || this.props.itemMethod)
+    if (!imd) imd = function(){}
     imd.call(ctx, that, this.intent)
   }
   queryer.roll('rendered', {
@@ -85,6 +87,18 @@ const didMount = function(ctx, opts, cb, queryer){
     opts: opts,
     ctx : ctx
   })
+}
+
+const unMount = function(opts, queryer){
+  let that = findDOMNode(this)
+  if (
+    typeof opts.leave == 'function' ||
+    typeof this.props.leave == 'function'
+  ) {
+    let imd = isFunction(opts.leave) ? opts.leave : this.props.leave
+    if (!imd) imd = function(){}
+    imd.call(ctx, that, this.intent)
+  }
 }
 
 
@@ -115,6 +129,10 @@ function dealWithReactElement(CComponent, opts, cb, queryer){
       this.setState({
         show: false
       })
+    }
+
+    componentWillUnmount(){
+      unMount.call(this, opts, queryer)
     }
 
     componentDidUpdate(){
@@ -228,12 +246,14 @@ export default function combineX(ComposedComponent, opts, cb){
     }
 
     componentWillUnmount(){
-      const gname = this.globalName
-      componentMonuted.data[gname] = false
-      // ReactComponentMonuted = false
+      // const gname = this.globalName
+      // componentMonuted.data[gname] = false
+      super.componentWillUnmount ? super.componentWillUnmount() : ''
+      unMount.call(this, opts, queryer)
     }
 
     componentDidUpdate(){
+      super.componentDidMount ? super.componentDidMount() : ''
       this.componentDidMount()
     }
 
@@ -333,6 +353,7 @@ export class CombineClass{
     this.isClient = isClient
     this.extension = {}
     this.elements   // rendered方法中赋值，react class的componentDidMount之后将refs的内容赋值给该变量
+    this.leave  //unmounted 触发的方法
     browserRender = this::browserRender
 
     this.inject()
@@ -451,7 +472,7 @@ export class CombineClass{
         }
       }
     }
-
+    _props.leave = this.leave || this.config.leave || this.config.props.leave
     this.config.props = _props || {}
 
     if (typeof id == 'string' || typeof id == 'object') {
