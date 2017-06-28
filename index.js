@@ -472,7 +472,7 @@ export class CombineClass{
         }
       }
     }
-    _props.leave = this.leave || this.config.leave || this.config.props.leave
+    _props.leave = this.leave || this.config.leave || (this.config.props&&this.config.props.leave)
     this.config.props = _props || {}
 
     if (typeof id == 'string' || typeof id == 'object') {
