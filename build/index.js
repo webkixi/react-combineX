@@ -84,6 +84,11 @@ var store = function (sax) {
 
           var queryer = sax(id);
           _this.saxer = queryer;
+          _this.on = queryer.on.bind(queryer);
+          _this.off = queryer.off.bind(queryer);
+          _this.emit = queryer.emit.bind(queryer);
+          _this.roll = queryer.roll.bind(queryer);
+          _this.append = queryer.append.bind(queryer);
           queryer.data.originalState ? queryer.data.originalState[id] = (0, _lodash2.default)(_this.state) : function () {
             var temp = {};temp[id] = (0, _lodash2.default)(_this.state);
             queryer.data.originalState = temp;
@@ -285,7 +290,7 @@ function combineX(ComposedComponent, opts, cb) {
     QueryCtx.data = liveState.data;
 
     if (queryActions[key]) {
-      var _tmp = queryActions[key].call(queryActions, oState, props);
+      var _tmp = queryActions[key].call(queryActions, oState, props, QueryCtx);
       if (_tmp) {
         // const target = merge({}, oState, _tmp)
         ctx.setState(_tmp);
@@ -350,9 +355,11 @@ function combineX(ComposedComponent, opts, cb) {
     this.timer;
     this.globalName = globalName;
     this.saxer = queryer;
-    this.setActions = queryer.setActions;
-    this.on = queryer.on;
-    this.roll = queryer.roll;
+    this.setActions = queryer.setActions.bind(queryer);
+    this.on = queryer.on.bind(queryer);
+    this.off = queryer.off.bind(queryer);
+    this.roll = queryer.roll.bind(queryer);
+    this.emit = queryer.emit.bind(queryer);
     this.data;
 
     this.hasMounted = function () {
@@ -360,12 +367,11 @@ function combineX(ComposedComponent, opts, cb) {
       return componentMonuted.data[gname];
     };
 
-    this.dispatch = function (key, props) {
+    this.dispatch = function (key, props, ctx) {
       var that = this;
-      clearTimeout(this.timer);
-      this.timer = setTimeout(function () {
+      setTimeout(function () {
         var hasMounted = that.hasMounted();
-        if (hasMounted) dispatcher(key, props, that);
+        if (hasMounted) dispatcher(key, props, ctx);
       }, 0);
     };
   };
@@ -408,7 +414,7 @@ function browserRender(id, X, config) {
 function _rendered(ctx, cb) {
   return function (dom, intent) {
     ctx.elements = this.refs;
-    ctx.data = ctx.combx.data ? ctx.combx.data : ctx.config.props.data; // 用于实例中做数据查询，该data同步于react class的state.data，dispatcher中动态更新该值
+    // ctx.data = ctx.combx.data ? ctx.combx.data : ctx.config.props.data  // 用于实例中做数据查询，该data同步于react class的state.data，dispatcher中动态更新该值
     cb.call(this, dom, intent, ctx);
   };
 }
@@ -452,7 +458,7 @@ var CombineClass = exports.CombineClass = function () {
       var _loop = function _loop(ii) {
         var actName = upKeyNames[ii];
         _this4['$' + lowKeyNames[ii]] = function (param) {
-          this.dispatch(actName, param);
+          this.dispatch(actName, param, this);
           return this;
         };
       };

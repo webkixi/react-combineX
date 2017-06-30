@@ -35,6 +35,11 @@ const store = ( sax => {
 
           const queryer = sax(id)
           this.saxer = queryer
+          this.on = queryer::queryer.on
+          this.off = queryer::queryer.off
+          this.emit = queryer::queryer.emit
+          this.roll = queryer::queryer.roll
+          this.append = queryer::queryer.append
           queryer.data.originalState
           ? queryer.data.originalState[id] = cloneDeep(this.state)
           : ( ()=>{
@@ -230,7 +235,7 @@ export default function combineX(ComposedComponent, opts, cb){
     QueryCtx.data = liveState.data
 
     if (queryActions[key]) {
-      const _tmp = queryActions[key].call(queryActions, oState, props)
+      const _tmp = queryActions[key].call(queryActions, oState, props, QueryCtx)
       if (_tmp) {
         // const target = merge({}, oState, _tmp)
         ctx.setState(_tmp)
@@ -280,9 +285,11 @@ export default function combineX(ComposedComponent, opts, cb){
       this.timer
       this.globalName = globalName
       this.saxer = queryer
-      this.setActions = queryer.setActions
-      this.on = queryer.on
-      this.roll = queryer.roll
+      this.setActions = queryer::queryer.setActions
+      this.on = queryer::queryer.on
+      this.off = queryer::queryer.off
+      this.roll = queryer::queryer.roll
+      this.emit = queryer::queryer.emit
       this.data
 
       this.hasMounted = function(){
@@ -290,12 +297,11 @@ export default function combineX(ComposedComponent, opts, cb){
         return componentMonuted.data[gname]
       }
 
-      this.dispatch = function(key, props){
+      this.dispatch = function(key, props, ctx){
         const that = this
-        clearTimeout(this.timer)
-        this.timer = setTimeout(function() {
+        setTimeout(function() {
           const hasMounted = that.hasMounted()
-          if (hasMounted) dispatcher(key, props, that)
+          if (hasMounted) dispatcher(key, props, ctx)
         }, 0);
       }
     }
@@ -342,7 +348,7 @@ function browserRender(id, X, config){
 function _rendered(ctx, cb){
   return function(dom, intent){
     ctx.elements = this.refs
-    ctx.data = ctx.combx.data ? ctx.combx.data : ctx.config.props.data  // 用于实例中做数据查询，该data同步于react class的state.data，dispatcher中动态更新该值
+    // ctx.data = ctx.combx.data ? ctx.combx.data : ctx.config.props.data  // 用于实例中做数据查询，该data同步于react class的state.data，dispatcher中动态更新该值
     cb.call(this, dom, intent, ctx)
   }
 }
@@ -377,7 +383,7 @@ export class CombineClass{
     for (let ii=0; ii<lowKeyNames.length; ii++) {
       const actName = upKeyNames[ii]
       this['$'+lowKeyNames[ii]] = function(param){
-        this.dispatch(actName, param)
+        this.dispatch(actName, param, this)
         return this
       }
     }
