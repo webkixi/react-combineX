@@ -406,8 +406,7 @@ export class CombineClass{
     }
 
     this.roll = function(key, data){
-      CombX.saxer.roll(key, data)
-      return this
+      return CombX.saxer.roll(key, data)
     }
 
     this.emit = this.roll

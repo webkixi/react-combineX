@@ -485,8 +485,7 @@ var CombineClass = exports.CombineClass = function () {
       };
 
       this.roll = function (key, data) {
-        CombX.saxer.roll(key, data);
-        return this;
+        return CombX.saxer.roll(key, data);
       };
 
       this.emit = this.roll;
