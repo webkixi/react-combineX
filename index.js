@@ -258,7 +258,7 @@ export default function combineX(ComposedComponent, opts, cb){
     }
 
     componentDidUpdate(){
-      super.componentDidMount ? super.componentDidMount() : ''
+      super.componentDidUpdate ? super.componentDidUpdate() : ''
       this.componentDidMount()
     }
 

@@ -323,7 +323,7 @@ function combineX(ComposedComponent, opts, cb) {
     }, {
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
-        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
+        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidUpdate', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidUpdate', this).call(this) : '';
         this.componentDidMount();
       }
     }, {
