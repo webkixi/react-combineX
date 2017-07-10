@@ -371,7 +371,7 @@ function combineX(ComposedComponent, opts, cb) {
       var that = this;
       setTimeout(function () {
         var hasMounted = that.hasMounted();
-        if (hasMounted) dispatcher(key, props, ctx);
+        if (hasMounted) dispatcher(key, props, that);
       }, 0);
     };
   };
@@ -448,6 +448,7 @@ var CombineClass = exports.CombineClass = function () {
       this.x = CombX.element;
       this.dispatch = CombX.dispatch.bind(CombX);
       this.hasMounted = CombX.hasMounted.bind(CombX);
+      this.data = CombX.data;
 
       var keynames = Object.keys(Actions);
       var lowKeyNames = keynames.map(function (item) {

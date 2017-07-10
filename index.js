@@ -301,7 +301,7 @@ export default function combineX(ComposedComponent, opts, cb){
         const that = this
         setTimeout(function() {
           const hasMounted = that.hasMounted()
-          if (hasMounted) dispatcher(key, props, ctx)
+          if (hasMounted) dispatcher(key, props, that)
         }, 0);
       }
     }
@@ -374,6 +374,7 @@ export class CombineClass{
     this.x = CombX.element
     this.dispatch = CombX::CombX.dispatch
     this.hasMounted = CombX::CombX.hasMounted
+    this.data = CombX.data
 
 
     let keynames = Object.keys(Actions)
