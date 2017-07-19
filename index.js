@@ -2,16 +2,33 @@
  * React-combinex
  * 增强react的用法，贴近jquery的使用方式
  */
+let isReactNative = false
+let empty = false
+const noop = function(){}
 const isClient = typeof window !== 'undefined'
 const context = ( C => C ? window : global)(isClient) || {}
+isReactNative = context.regeneratorRuntime ? true : false
+
+
 import cloneDeep from 'lodash.clonedeep'
 import merge from 'lodash.merge'
 import uniqueId from 'lodash.uniqueid'
 const SAX = ( ()=> typeof SAX != 'undefined' ? SAX : require('fkp-sax'))()
 const React = (typeof React != 'undefined' ? React : require('react'))
-const reactDom = ( C => typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server'))(isClient)
-const findDOMNode = ( C => C ? reactDom.findDOMNode : function(){} )(isClient)
-const render      = ( C => C ? reactDom.render : reactDom.renderToString)(isClient)
+
+
+if (!isReactNative) {
+  empty = <span />
+  var reactDom = ( C => typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server'))(isClient)
+  var findDOMNode = ( C => C ? reactDom.findDOMNode : function(){} )(isClient)
+  var render      = ( C => C ? reactDom.render : reactDom.renderToString)(isClient)
+} else {
+  var {View, Text} = require('react-native')
+  empty = <View><Text></Text></View>
+  var reactDom = noop
+  var findDOMNode = function(ctx){return ctx}
+  var render = function(jsx){return jsx}
+}
 
 if (!context.SAX) {
   context.SAX = SAX
@@ -156,7 +173,7 @@ function dealWithReactElement(CComponent, opts, cb, queryer){
       didMount.call(this, _ctx, opts, cb, queryer)
     }
     render(){
-      return this.state.show ? CComponent : <span/>
+      return this.state.show ? CComponent : empty
     }
   }
 }

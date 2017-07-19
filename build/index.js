@@ -38,24 +38,49 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * React-combinex
  * 增强react的用法，贴近jquery的使用方式
  */
+var isReactNative = false;
+var empty = false;
+var noop = function noop() {};
 var isClient = typeof window !== 'undefined';
 var context = function (C) {
   return C ? window : global;
 }(isClient) || {};
+isReactNative = context.regeneratorRuntime ? true : false;
 
 var SAX = function () {
   return typeof SAX != 'undefined' ? SAX : require('fkp-sax');
 }();
 var React = typeof React != 'undefined' ? React : require('react');
-var reactDom = function (C) {
-  return typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server');
-}(isClient);
-var findDOMNode = function (C) {
-  return C ? reactDom.findDOMNode : function () {};
-}(isClient);
-var render = function (C) {
-  return C ? reactDom.render : reactDom.renderToString;
-}(isClient);
+
+if (!isReactNative) {
+  empty = React.createElement('span', null);
+  var reactDom = function (C) {
+    return typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server');
+  }(isClient);
+  var findDOMNode = function (C) {
+    return C ? reactDom.findDOMNode : function () {};
+  }(isClient);
+  var render = function (C) {
+    return C ? reactDom.render : reactDom.renderToString;
+  }(isClient);
+} else {
+  var _require = require('react-native'),
+      View = _require.View,
+      Text = _require.Text;
+
+  empty = React.createElement(
+    View,
+    null,
+    React.createElement(Text, null)
+  );
+  var reactDom = noop;
+  var findDOMNode = function findDOMNode(ctx) {
+    return ctx;
+  };
+  var render = function render(jsx) {
+    return jsx;
+  };
+}
 
 if (!context.SAX) {
   context.SAX = SAX;
@@ -215,7 +240,7 @@ function dealWithReactElement(CComponent, opts, cb, queryer) {
     }, {
       key: 'render',
       value: function render() {
-        return this.state.show ? CComponent : React.createElement('span', null);
+        return this.state.show ? CComponent : empty;
       }
     }]);
 
