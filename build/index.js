@@ -64,15 +64,13 @@ if (!isReactNative) {
     return C ? reactDom.render : reactDom.renderToString;
   }(isClient);
 } else {
-  var _require = require('react-native'),
-      View = _require.View,
-      Text = _require.Text;
+  var _ref = function () {
+    return typeof ReactNative != 'undefined' ? ReactNative : require('react-native');
+  }(),
+      View = _ref.View,
+      Text = _ref.Text;
 
-  empty = React.createElement(
-    View,
-    null,
-    React.createElement(Text, null)
-  );
+  empty = React.createElement(Text, null);
   var reactDom = noop;
   var findDOMNode = function findDOMNode(ctx) {
     return ctx;

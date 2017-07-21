@@ -23,8 +23,8 @@ if (!isReactNative) {
   var findDOMNode = ( C => C ? reactDom.findDOMNode : function(){} )(isClient)
   var render      = ( C => C ? reactDom.render : reactDom.renderToString)(isClient)
 } else {
-  var {View, Text} = require('react-native')
-  empty = <View><Text></Text></View>
+  var {View, Text} = ( () => typeof ReactNative != 'undefined' ? ReactNative : require('react-native'))()
+  empty = <Text></Text>
   var reactDom = noop
   var findDOMNode = function(ctx){return ctx}
   var render = function(jsx){return jsx}
