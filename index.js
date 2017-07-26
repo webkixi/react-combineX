@@ -481,7 +481,7 @@ export class CombineClass{
   render(id, cb){
     id = id || this.config.container
     const X = this.x
-    let _props = this.props || this.config.props
+    let _props = this.props || this.config.props || {}
 
     if (typeof id == 'function' || typeof cb == 'function') {
       this.config.rendered = typeof id == 'function' ? id : cb
@@ -499,7 +499,7 @@ export class CombineClass{
     this.config.props = _props || {}
 
     if (typeof id == 'string' || typeof id == 'object') {
-      if (this.isClient) {
+      if (this.isClient && !isReactNative) {
         this.config.container = id
         return browserRender(id, X, this.config)
       }

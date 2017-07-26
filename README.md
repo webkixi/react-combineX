@@ -1,5 +1,5 @@
 # react-combinex
-a lite lib for react jsx and react class
+a lite lib for react jsx and react class, support node/fed/react native
 
 ### aotoo.CombineClass
 

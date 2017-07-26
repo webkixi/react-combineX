@@ -573,7 +573,7 @@ var CombineClass = exports.CombineClass = function () {
     value: function render(id, cb) {
       id = id || this.config.container;
       var X = this.x;
-      var _props = this.props || this.config.props;
+      var _props = this.props || this.config.props || {};
 
       if (typeof id == 'function' || typeof cb == 'function') {
         this.config.rendered = typeof id == 'function' ? id : cb;
@@ -590,7 +590,7 @@ var CombineClass = exports.CombineClass = function () {
       this.config.props = _props || {};
 
       if (typeof id == 'string' || (typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object') {
-        if (this.isClient) {
+        if (this.isClient && !isReactNative) {
           this.config.container = id;
           return browserRender(id, X, this.config);
         }
