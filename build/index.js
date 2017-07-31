@@ -54,7 +54,7 @@ isReactNative = context.regeneratorRuntime ? context.alert && context.navigator 
 // console.log(context.navigator);
 
 function require2(_path) {
-  return require(_path);
+  return require('react-native');
 }
 
 var SAX = function () {
