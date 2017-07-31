@@ -45,7 +45,17 @@ var isClient = typeof window !== 'undefined';
 var context = function (C) {
   return C ? window : global;
 }(isClient) || {};
-isReactNative = context.regeneratorRuntime ? true : false;
+isReactNative = context.regeneratorRuntime ? context.alert && context.navigator && context.performance ? true : false : false;
+
+// console.log(context.regeneratorRuntime);
+// console.log(context.XMLHttpRequest);
+// console.log(context.performance);
+// console.log(context.alert);
+// console.log(context.navigator);
+
+function require2(_path) {
+  return require(_path);
+}
 
 var SAX = function () {
   return typeof SAX != 'undefined' ? SAX : require('fkp-sax');
@@ -65,7 +75,7 @@ if (!isReactNative) {
   }(isClient);
 } else {
   var _ref = function () {
-    return typeof ReactNative != 'undefined' ? ReactNative : require('react-native');
+    return typeof ReactNative != 'undefined' ? ReactNative : require2('react-native');
   }(),
       View = _ref.View,
       Text = _ref.Text;

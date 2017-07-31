@@ -7,8 +7,17 @@ let empty = false
 const noop = function(){}
 const isClient = typeof window !== 'undefined'
 const context = ( C => C ? window : global)(isClient) || {}
-isReactNative = context.regeneratorRuntime ? true : false
+isReactNative = context.regeneratorRuntime ? (context.alert && context.navigator && context.performance) ? true : false : false
 
+// console.log(context.regeneratorRuntime);
+// console.log(context.XMLHttpRequest);
+// console.log(context.performance);
+// console.log(context.alert);
+// console.log(context.navigator);
+
+function require2(_path){
+  return require(_path)
+}
 
 import cloneDeep from 'lodash.clonedeep'
 import merge from 'lodash.merge'
@@ -23,7 +32,7 @@ if (!isReactNative) {
   var findDOMNode = ( C => C ? reactDom.findDOMNode : function(){} )(isClient)
   var render      = ( C => C ? reactDom.render : reactDom.renderToString)(isClient)
 } else {
-  var {View, Text} = ( () => typeof ReactNative != 'undefined' ? ReactNative : require('react-native'))()
+  var {View, Text} = ( () => typeof ReactNative != 'undefined' ? ReactNative : require2('react-native'))()
   empty = <Text></Text>
   var reactDom = noop
   var findDOMNode = function(ctx){return ctx}
