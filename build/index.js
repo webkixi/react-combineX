@@ -45,7 +45,8 @@ var isClient = typeof window !== 'undefined';
 var context = function (C) {
   return C ? window : global;
 }(isClient) || {};
-isReactNative = context.regeneratorRuntime ? context.alert && context.navigator && context.performance ? true : false : false;
+if (context.process) isClient = false;
+if (context.regeneratorRuntime && context.nativeCallSyncHook) isReactNative = true;
 
 // console.log(context.regeneratorRuntime);
 // console.log(context.XMLHttpRequest);
@@ -53,17 +54,13 @@ isReactNative = context.regeneratorRuntime ? context.alert && context.navigator 
 // console.log(context.alert);
 // console.log(context.navigator);
 
-function require2(_path) {
-  return require('react-native');
-}
-
 var SAX = function () {
   return typeof SAX != 'undefined' ? SAX : require('fkp-sax');
 }();
 var React = typeof React != 'undefined' ? React : require('react');
 
 if (!isReactNative) {
-  empty = React.createElement('span', null);
+  // empty = <span />
   var reactDom = function (C) {
     return typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server');
   }(isClient);
@@ -74,13 +71,8 @@ if (!isReactNative) {
     return C ? reactDom.render : reactDom.renderToString;
   }(isClient);
 } else {
-  var _ref = function () {
-    return typeof ReactNative != 'undefined' ? ReactNative : require2('react-native');
-  }(),
-      View = _ref.View,
-      Text = _ref.Text;
-
-  empty = React.createElement(Text, null);
+  // var {Text} = ( () => typeof ReactNative != 'undefined' ? ReactNative : require2('react-native'))()
+  // empty = <Text></Text>
   var reactDom = noop;
   var findDOMNode = function findDOMNode(ctx) {
     return ctx;
@@ -237,18 +229,21 @@ function dealWithReactElement(CComponent, opts, cb, queryer) {
       value: function componentDidMount() {
         var self = this;
         var that = findDOMNode(this);
-        var _ctx = {
-          show: this.show,
-          hide: this.hide
-        };
 
+        // const _ctx = {
+        //   show: this.show,
+        //   hide: this.hide
+        // }
+
+        var _ctx = {};
         _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this) ? _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this).call(this) : '';
         didMount.call(this, _ctx, opts, cb, queryer);
       }
     }, {
       key: 'render',
       value: function render() {
-        return this.state.show ? CComponent : empty;
+        // return this.state.show ? CComponent : empty
+        return CComponent;
       }
     }]);
 

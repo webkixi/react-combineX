@@ -4,20 +4,17 @@
  */
 let isReactNative = false
 let empty = false
-const noop = function(){}
-const isClient = typeof window !== 'undefined'
-const context = ( C => C ? window : global)(isClient) || {}
-isReactNative = context.regeneratorRuntime ? (context.alert && context.navigator && context.performance) ? true : false : false
+var noop = function(){}
+var isClient = typeof window !== 'undefined'
+var context = ( C => C ? window : global)(isClient) || {}
+if (context.process) isClient = false
+if (context.regeneratorRuntime && context.nativeCallSyncHook) isReactNative = true
 
 // console.log(context.regeneratorRuntime);
 // console.log(context.XMLHttpRequest);
 // console.log(context.performance);
 // console.log(context.alert);
 // console.log(context.navigator);
-
-function require2(_path){
-  return require('react-native')
-}
 
 import cloneDeep from 'lodash.clonedeep'
 import merge from 'lodash.merge'
@@ -27,13 +24,13 @@ const React = (typeof React != 'undefined' ? React : require('react'))
 
 
 if (!isReactNative) {
-  empty = <span />
+  // empty = <span />
   var reactDom = ( C => typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server'))(isClient)
   var findDOMNode = ( C => C ? reactDom.findDOMNode : function(){} )(isClient)
   var render      = ( C => C ? reactDom.render : reactDom.renderToString)(isClient)
 } else {
-  var {View, Text} = ( () => typeof ReactNative != 'undefined' ? ReactNative : require2('react-native'))()
-  empty = <Text></Text>
+  // var {Text} = ( () => typeof ReactNative != 'undefined' ? ReactNative : require2('react-native'))()
+  // empty = <Text></Text>
   var reactDom = noop
   var findDOMNode = function(ctx){return ctx}
   var render = function(jsx){return jsx}
@@ -173,16 +170,19 @@ function dealWithReactElement(CComponent, opts, cb, queryer){
     componentDidMount() {
       let self = this
       let that = findDOMNode(this);
-      const _ctx = {
-        show: this.show,
-        hide: this.hide
-      }
 
+      // const _ctx = {
+      //   show: this.show,
+      //   hide: this.hide
+      // }
+
+      const _ctx = {}
       super.componentDidMount ? super.componentDidMount() : ''
       didMount.call(this, _ctx, opts, cb, queryer)
     }
     render(){
-      return this.state.show ? CComponent : empty
+      // return this.state.show ? CComponent : empty
+      return CComponent
     }
   }
 }
