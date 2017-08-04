@@ -46,7 +46,8 @@ var context = function (C) {
   return C ? window : global;
 }(isClient) || {};
 if (context.process) isClient = false;
-if (context.regeneratorRuntime && context.nativeCallSyncHook) isReactNative = true;
+if (context.__BUNDLE_START_TIME__) isReactNative = true;
+// if (context.regeneratorRuntime && context.nativeCallSyncHook) isReactNative = true
 
 // console.log(context.regeneratorRuntime);
 // console.log(context.XMLHttpRequest);
