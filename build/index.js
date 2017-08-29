@@ -479,6 +479,10 @@ var CombineClass = exports.CombineClass = function () {
       this.hasMounted = CombX.hasMounted.bind(CombX);
       this.data = CombX.data;
 
+      this.getState = function () {
+        return this.saxer.data && this.saxer.data.originalState && this.saxer.data.originalState[this.globalName];
+      }.bind(this);
+
       var keynames = Object.keys(Actions);
       var lowKeyNames = keynames.map(function (item) {
         return item.toLowerCase();

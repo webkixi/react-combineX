@@ -403,6 +403,10 @@ export class CombineClass{
     this.hasMounted = CombX::CombX.hasMounted
     this.data = CombX.data
 
+    this.getState = function(){
+      return this.saxer.data && this.saxer.data.originalState && this.saxer.data.originalState[this.globalName]
+    }.bind(this)
+
 
     let keynames = Object.keys(Actions)
     const lowKeyNames = keynames.map( item => item.toLowerCase() )
