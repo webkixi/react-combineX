@@ -404,7 +404,10 @@ export class CombineClass{
     this.data = CombX.data
 
     this.getState = function(){
-      return this.saxer.data && this.saxer.data.originalState && this.saxer.data.originalState[this.globalName]
+      const ctx = this.saxer.store.ctx[this.globalName]
+      const liveState = {...ctx.state}
+      return liveState
+      // return this.saxer.data && this.saxer.data.originalState && this.saxer.data.originalState[this.globalName]
     }.bind(this)
 
 
