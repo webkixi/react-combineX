@@ -339,7 +339,7 @@ function combineX(ComposedComponent, opts, cb) {
 
       var _this3 = _possibleConstructorReturn(this, (Temp.__proto__ || Object.getPrototypeOf(Temp)).call(this, props));
 
-      _this3.intent = _this3.props.intent || [];
+      _this3.intent = _this3.props.intent || _this3.props.idf || [];
       return _this3;
     }
 
@@ -349,6 +349,7 @@ function combineX(ComposedComponent, opts, cb) {
         // const gname = this.globalName
         // componentMonuted.data[gname] = false
         _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentWillUnmount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentWillUnmount', this).call(this) : '';
+        componentMonuted.data[this.globalName] = false;
         unMount.call(this, opts, queryer);
       }
     }, {
@@ -366,7 +367,8 @@ function combineX(ComposedComponent, opts, cb) {
         var _ctx = {
           // state: queryer.data.originalState[globalName],
           dispatch: dispatcher,
-          refs: this.refs
+          refs: this.refs,
+          index: this.props.idf
         };
         _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
         didMount.call(this, _ctx, opts, cb, queryer);
@@ -400,10 +402,12 @@ function combineX(ComposedComponent, opts, cb) {
 
     this.dispatch = function (key, props, ctx) {
       var that = this;
-      setTimeout(function () {
-        var hasMounted = that.hasMounted();
-        if (hasMounted) dispatcher(key, props, that);
-      }, 0);
+      var hasMounted = that.hasMounted();
+      if (hasMounted) {
+        setTimeout(function () {
+          dispatcher(key, props, that);
+        }, 0);
+      }
     };
   };
 

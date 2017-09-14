@@ -274,13 +274,14 @@ export default function combineX(ComposedComponent, opts, cb){
   class Temp extends ComposedComponent {
     constructor(props) {
       super(props);
-			this.intent = this.props.intent || [];
+			this.intent = this.props.intent || this.props.idf || [];
     }
 
     componentWillUnmount(){
       // const gname = this.globalName
       // componentMonuted.data[gname] = false
       super.componentWillUnmount ? super.componentWillUnmount() : ''
+      componentMonuted.data[this.globalName] = false
       unMount.call(this, opts, queryer)
     }
 
@@ -296,7 +297,8 @@ export default function combineX(ComposedComponent, opts, cb){
       const _ctx = {
         // state: queryer.data.originalState[globalName],
         dispatch: dispatcher,
-        refs: this.refs
+        refs: this.refs,
+        index: this.props.idf
       }
       super.componentDidMount ? super.componentDidMount() : ''
       didMount.call(this, _ctx, opts, cb, queryer)
@@ -326,10 +328,12 @@ export default function combineX(ComposedComponent, opts, cb){
 
       this.dispatch = function(key, props, ctx){
         const that = this
-        setTimeout(function() {
-          const hasMounted = that.hasMounted()
-          if (hasMounted) dispatcher(key, props, that)
-        }, 0);
+        const hasMounted = that.hasMounted()
+        if (hasMounted) {
+          setTimeout(function() {
+            dispatcher(key, props, that)
+          }, 0);
+        }
       }
     }
   }
