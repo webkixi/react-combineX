@@ -274,7 +274,7 @@ export default function combineX(ComposedComponent, opts, cb){
   class Temp extends ComposedComponent {
     constructor(props) {
       super(props);
-			this.intent = this.props.intent || this.props.idf || [];
+			this.intent = this.props.intent || this.props.idf || 0;
     }
 
     componentWillUnmount(){

@@ -339,7 +339,7 @@ function combineX(ComposedComponent, opts, cb) {
 
       var _this3 = _possibleConstructorReturn(this, (Temp.__proto__ || Object.getPrototypeOf(Temp)).call(this, props));
 
-      _this3.intent = _this3.props.intent || _this3.props.idf || [];
+      _this3.intent = _this3.props.intent || _this3.props.idf || 0;
       return _this3;
     }
 
