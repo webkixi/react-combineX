@@ -440,7 +440,9 @@ function _wrap(ComposedComponent, opts, cb) {
 function browserRender(id, X, config) {
   var props = config.props;
   if (typeof id == 'string') {
-    return render(React.createElement(X, props), document.getElementById(id));
+    if (document.getElementById(id)) {
+      return render(React.createElement(X, props), document.getElementById(id));
+    }
   } else if ((typeof id === 'undefined' ? 'undefined' : _typeof(id)) == 'object' && id.nodeType) {
     return render(React.createElement(X, props), id);
   }

@@ -368,7 +368,9 @@ export function _wrap(ComposedComponent, opts, cb){
 function browserRender(id, X, config){
   const props = config.props
   if (typeof id == 'string') {
-    return render(<X {...props}/>, document.getElementById(id))
+    if (document.getElementById(id)) {
+      return render(<X {...props}/>, document.getElementById(id))
+    }
   }
 
   else if (typeof id == 'object' && id.nodeType) {
