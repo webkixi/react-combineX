@@ -117,7 +117,7 @@ const didMount = function(ctx, opts, cb, queryer){
     ctx : ctx
   })
 
-  queryer.roll('_rendered', {
+  queryer.roll('__rendered', {
     dom : that,
     opts: opts,
     ctx : ctx
@@ -131,7 +131,6 @@ const unMount = function(opts, queryer){
     typeof this.props.leave == 'function'
   ) {
     let imd = isFunction(opts.leave) ? opts.leave : this.props.leave
-    if (!imd) imd = function(){}
     imd(that, this.intent)
   }
 }
@@ -299,6 +298,7 @@ export default function combineX(ComposedComponent, opts, cb){
     componentDidMount(){
 			let self = this
 			let that = findDOMNode(this);
+      componentMonuted.data[this.globalName] = true
 
       const _ctx = {
         // state: queryer.data.originalState[globalName],
@@ -309,7 +309,6 @@ export default function combineX(ComposedComponent, opts, cb){
       super.componentDidMount ? super.componentDidMount() : ''
       didMount.call(this, _ctx, opts, cb, queryer)
 
-      componentMonuted.data[this.globalName] = true
 		}
   }
 
@@ -340,9 +339,9 @@ export default function combineX(ComposedComponent, opts, cb){
             dispatcher(key, props, that)
           }, 0);
         } else {
-          clearTimeout(this.timer)
-          this.saxer.off('_rendered')
-          this.saxer.on('_rendered', function(){
+          this.saxer.off('__rendered')
+          this.saxer.on('__rendered', function(){
+            clearTimeout(that.timer)
             that.timer = setTimeout(function() {
               dispatcher(key, props, that)
             }, 200);
