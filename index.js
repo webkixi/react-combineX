@@ -116,6 +116,12 @@ const didMount = function(ctx, opts, cb, queryer){
     opts: opts,
     ctx : ctx
   })
+
+  queryer.roll('_rendered', {
+    dom : that,
+    opts: opts,
+    ctx : ctx
+  })
 }
 
 const unMount = function(opts, queryer){
@@ -333,6 +339,14 @@ export default function combineX(ComposedComponent, opts, cb){
           setTimeout(function() {
             dispatcher(key, props, that)
           }, 0);
+        } else {
+          clearTimeout(this.timer)
+          this.saxer.off('_rendered')
+          this.saxer.on('_rendered', function(){
+            that.timer = setTimeout(function() {
+              dispatcher(key, props, that)
+            }, 200);
+          })
         }
       }
     }
