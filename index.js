@@ -287,10 +287,12 @@ export default function combineX(ComposedComponent, opts, cb){
       // componentMonuted.data[gname] = false
       super.componentWillUnmount ? super.componentWillUnmount() : ''
       componentMonuted.data[this.globalName] = false
+      queryer.off('__rendered')
       unMount.call(this, opts, queryer)
     }
 
     componentDidUpdate(){
+      this.didUpdate = true
       super.componentDidUpdate ? super.componentDidUpdate() : ''
       this.componentDidMount()
     }
@@ -300,6 +302,11 @@ export default function combineX(ComposedComponent, opts, cb){
 			let that = findDOMNode(this);
       componentMonuted.data[this.globalName] = true
 
+      if (this.didUpdate = true){
+        this.didUpdate = false
+      } else {
+        queryer.off('__rendered')
+      }
       const _ctx = {
         // state: queryer.data.originalState[globalName],
         dispatch: dispatcher,
@@ -334,17 +341,17 @@ export default function combineX(ComposedComponent, opts, cb){
       this.dispatch = function(key, props, ctx){
         const that = this
         const hasMounted = that.hasMounted()
+        this.saxer.off('__rendered')
         if (hasMounted) {
           setTimeout(function() {
             dispatcher(key, props, that)
           }, 0);
         } else {
-          this.saxer.off('__rendered')
+          clearTimeout(that.timer)
           this.saxer.on('__rendered', function(){
-            clearTimeout(that.timer)
             that.timer = setTimeout(function() {
               dispatcher(key, props, that)
-            }, 200);
+            }, 0);
           })
         }
       }

@@ -166,7 +166,7 @@ var didMount = function didMount(ctx, opts, cb, queryer) {
     ctx: ctx
   });
 
-  queryer.roll('_rendered', {
+  queryer.roll('__rendered', {
     dom: that,
     opts: opts,
     ctx: ctx
@@ -177,7 +177,6 @@ var unMount = function unMount(opts, queryer) {
   var that = findDOMNode(this);
   if (typeof opts.leave == 'function' || typeof this.props.leave == 'function') {
     var imd = isFunction(opts.leave) ? opts.leave : this.props.leave;
-    if (!imd) imd = function imd() {};
     imd(that, this.intent);
   }
 };
@@ -356,11 +355,13 @@ function combineX(ComposedComponent, opts, cb) {
         // componentMonuted.data[gname] = false
         _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentWillUnmount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentWillUnmount', this).call(this) : '';
         componentMonuted.data[this.globalName] = false;
+        queryer.off('__rendered');
         unMount.call(this, opts, queryer);
       }
     }, {
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
+        this.didUpdate = true;
         _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidUpdate', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidUpdate', this).call(this) : '';
         this.componentDidMount();
       }
@@ -369,7 +370,13 @@ function combineX(ComposedComponent, opts, cb) {
       value: function componentDidMount() {
         var self = this;
         var that = findDOMNode(this);
+        componentMonuted.data[this.globalName] = true;
 
+        if (this.didUpdate = true) {
+          this.didUpdate = false;
+        } else {
+          queryer.off('__rendered');
+        }
         var _ctx = {
           // state: queryer.data.originalState[globalName],
           dispatch: dispatcher,
@@ -378,8 +385,6 @@ function combineX(ComposedComponent, opts, cb) {
         };
         _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
         didMount.call(this, _ctx, opts, cb, queryer);
-
-        componentMonuted.data[this.globalName] = true;
       }
     }]);
 
@@ -409,17 +414,17 @@ function combineX(ComposedComponent, opts, cb) {
     this.dispatch = function (key, props, ctx) {
       var that = this;
       var hasMounted = that.hasMounted();
+      this.saxer.off('__rendered');
       if (hasMounted) {
         setTimeout(function () {
           dispatcher(key, props, that);
         }, 0);
       } else {
-        clearTimeout(this.timer);
-        this.saxer.off('_rendered');
-        this.saxer.on('_rendered', function () {
+        clearTimeout(that.timer);
+        this.saxer.on('__rendered', function () {
           that.timer = setTimeout(function () {
             dispatcher(key, props, that);
-          }, 200);
+          }, 0);
         });
       }
     };
