@@ -350,7 +350,9 @@ export default function combineX(ComposedComponent, opts, cb){
           clearTimeout(that.timer)
           this.saxer.on('__rendered', function(){
             that.timer = setTimeout(function() {
+              clearTimeout(that.timer)
               dispatcher(key, props, that)
+              that.saxer.off('__rendered')
             }, 0);
           })
         }
