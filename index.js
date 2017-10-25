@@ -458,18 +458,18 @@ export class CombineClass{
     //   return this
     // }
 
-    this.on = (key, fun)=>{
-      CombX.saxer.on(key, fun)
+    this.on = ()=>{
+      CombX.saxer.on(...arguments)
       return this
     }
 
-    this.off = (key) => {
-      CombX.saxer.off(key)
+    this.off = () => {
+      CombX.saxer.off(...arguments)
       return this
     }
 
-    this.roll = function(key, data){
-      return CombX.saxer.roll(key, data)
+    this.roll = function(){
+      return CombX.saxer.roll(...arguments)
     }
 
     this.emit = this.roll

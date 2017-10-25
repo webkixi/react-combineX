@@ -423,7 +423,9 @@ function combineX(ComposedComponent, opts, cb) {
         clearTimeout(that.timer);
         this.saxer.on('__rendered', function () {
           that.timer = setTimeout(function () {
+            clearTimeout(that.timer);
             dispatcher(key, props, that);
+            that.saxer.off('__rendered');
           }, 0);
         });
       }
@@ -492,7 +494,8 @@ var CombineClass = exports.CombineClass = function () {
   _createClass(CombineClass, [{
     key: 'combinex',
     value: function combinex(GridsBase) {
-      var _this4 = this;
+      var _arguments = arguments,
+          _this4 = this;
 
       var Actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -538,18 +541,24 @@ var CombineClass = exports.CombineClass = function () {
       //   return this
       // }
 
-      this.on = function (key, fun) {
-        CombX.saxer.on(key, fun);
+      this.on = function () {
+        var _CombX$saxer;
+
+        (_CombX$saxer = CombX.saxer).on.apply(_CombX$saxer, _arguments);
         return _this4;
       };
 
-      this.off = function (key) {
-        CombX.saxer.off(key);
+      this.off = function () {
+        var _CombX$saxer2;
+
+        (_CombX$saxer2 = CombX.saxer).off.apply(_CombX$saxer2, _arguments);
         return _this4;
       };
 
-      this.roll = function (key, data) {
-        return CombX.saxer.roll(key, data);
+      this.roll = function () {
+        var _CombX$saxer3;
+
+        return (_CombX$saxer3 = CombX.saxer).roll.apply(_CombX$saxer3, arguments);
       };
 
       this.emit = this.roll;
