@@ -494,8 +494,7 @@ var CombineClass = exports.CombineClass = function () {
   _createClass(CombineClass, [{
     key: 'combinex',
     value: function combinex(GridsBase) {
-      var _arguments = arguments,
-          _this4 = this;
+      var _this4 = this;
 
       var Actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -541,24 +540,18 @@ var CombineClass = exports.CombineClass = function () {
       //   return this
       // }
 
-      this.on = function () {
-        var _CombX$saxer;
-
-        (_CombX$saxer = CombX.saxer).on.apply(_CombX$saxer, _arguments);
+      this.on = function (evt, opts, func) {
+        CombX.saxer.on(evt, opts, func);
         return _this4;
       };
 
-      this.off = function () {
-        var _CombX$saxer2;
-
-        (_CombX$saxer2 = CombX.saxer).off.apply(_CombX$saxer2, _arguments);
+      this.off = function (evt, opts, func) {
+        CombX.saxer.off(evt, opts, func);
         return _this4;
       };
 
-      this.roll = function () {
-        var _CombX$saxer3;
-
-        return (_CombX$saxer3 = CombX.saxer).roll.apply(_CombX$saxer3, arguments);
+      this.roll = function (type, data) {
+        return CombX.saxer.roll(type, data);
       };
 
       this.emit = this.roll;
