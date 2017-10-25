@@ -1,6 +1,6 @@
 {
   "name": "react-combinex",
-  "version": "1.2.22",
+  "version": "1.2.23",
   "description": "for micro react component, query dom and rerender component like redux",
   "main": "./build/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/webkixi/react-combinex.git"
   },
   "dependencies": {
-    "fkp-sax": "^1.5.10",
+    "fkp-sax": "^1.5.20",
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.0",
     "lodash.uniqueid": "^4.0.1",
