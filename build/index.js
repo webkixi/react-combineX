@@ -113,6 +113,8 @@ var store = function (sax) {
           var queryer = sax(id);
           _this.saxer = queryer;
           _this.on = queryer.on.bind(queryer);
+          _this.hasOn = queryer.hasOn.bind(queryer);
+          _this.one = queryer.one.bind(queryer);
           _this.off = queryer.off.bind(queryer);
           _this.emit = queryer.emit.bind(queryer);
           _this.roll = queryer.roll.bind(queryer);
@@ -401,6 +403,8 @@ function combineX(ComposedComponent, opts, cb) {
     this.saxer = queryer;
     this.setActions = queryer.setActions.bind(queryer);
     this.on = queryer.on.bind(queryer);
+    this.hasOn = queryer.hasOn.bind(queryer);
+    this.one = queryer.one.bind(queryer);
     this.off = queryer.off.bind(queryer);
     this.roll = queryer.roll.bind(queryer);
     this.emit = queryer.emit.bind(queryer);
@@ -542,6 +546,15 @@ var CombineClass = exports.CombineClass = function () {
 
       this.on = function (evt, opts, func) {
         CombX.saxer.on(evt, opts, func);
+        return _this4;
+      };
+
+      this.hasOn = function (evt, opts, func) {
+        return CombX.saxer.hasOn(evt, opts, func);
+      };
+
+      this.one = function (evt, opts, func) {
+        CombX.saxer.one(evt, opts, func);
         return _this4;
       };
 

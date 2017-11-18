@@ -60,6 +60,8 @@ const store = ( sax => {
           const queryer = sax(id)
           this.saxer = queryer
           this.on = queryer::queryer.on
+          this.hasOn = queryer::queryer.hasOn
+          this.one = queryer::queryer.one
           this.off = queryer::queryer.off
           this.emit = queryer::queryer.emit
           this.roll = queryer::queryer.roll
@@ -328,6 +330,8 @@ export default function combineX(ComposedComponent, opts, cb){
       this.saxer = queryer
       this.setActions = queryer::queryer.setActions
       this.on = queryer::queryer.on
+      this.hasOn = queryer::queryer.hasOn
+      this.one = queryer::queryer.one
       this.off = queryer::queryer.off
       this.roll = queryer::queryer.roll
       this.emit = queryer::queryer.emit
@@ -460,6 +464,15 @@ export class CombineClass{
 
     this.on = (evt, opts, func)=>{
       CombX.saxer.on(evt, opts, func)
+      return this
+    }
+
+    this.hasOn = (evt, opts, func) => {
+      return CombX.saxer.hasOn(evt, opts, func)
+    }
+
+    this.one = (evt, opts, func)=>{
+      CombX.saxer.one(evt, opts, func)
       return this
     }
 
