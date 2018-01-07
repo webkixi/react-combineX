@@ -3,32 +3,16 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.CombineClass = undefined;
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 exports.default = combineX;
 exports._wrap = _wrap;
-
-var _lodash = require('lodash.clonedeep');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _lodash3 = require('lodash.merge');
-
-var _lodash4 = _interopRequireDefault(_lodash3);
-
-var _lodash5 = require('lodash.uniqueid');
-
-var _lodash6 = _interopRequireDefault(_lodash5);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+exports.createCombinClass = createCombinClass;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -40,6 +24,17 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * React-combinex
  * 增强react的用法，贴近jquery的使用方式
  */
+var _ = require('lodash');
+var cloneDeep = _.cloneDeep;
+var merge = _.merge;
+var uuid = -1;
+
+function uniqueId(prefix) {
+  if (!prefix) prefix = 'random_';
+  uuid++;
+  return prefix + uuid;
+}
+
 var isReactNative = false;
 var empty = false;
 var noop = function noop() {};
@@ -49,13 +44,6 @@ var context = function (C) {
 }(isClient) || {};
 if (context.process) isClient = false;
 if (context.__BUNDLE_START_TIME__) isReactNative = true;
-// if (context.regeneratorRuntime && context.nativeCallSyncHook) isReactNative = true
-
-// console.log(context.regeneratorRuntime);
-// console.log(context.XMLHttpRequest);
-// console.log(context.performance);
-// console.log(context.alert);
-// console.log(context.navigator);
 
 var SAX = function () {
   return typeof SAX != 'undefined' ? SAX : require('fkp-sax');
@@ -63,7 +51,6 @@ var SAX = function () {
 var React = typeof React != 'undefined' ? React : require('react');
 
 if (!isReactNative) {
-  // empty = <span />
   var reactDom = function (C) {
     return typeof ReactDOM != 'undefined' ? ReactDOM : typeof ReactDom != 'undefined' ? ReactDom : C ? require('react-dom') : require('react-dom/server');
   }(isClient);
@@ -74,8 +61,6 @@ if (!isReactNative) {
     return C ? reactDom.render : reactDom.renderToString;
   }(isClient);
 } else {
-  // var {Text} = ( () => typeof ReactNative != 'undefined' ? ReactNative : require2('react-native'))()
-  // empty = <Text></Text>
   var reactDom = noop;
   var findDOMNode = function findDOMNode(ctx) {
     return ctx;
@@ -89,69 +74,13 @@ if (!context.SAX) {
   context.SAX = SAX;
 }
 
-var componentMonuted = SAX('ReactComponentMonuted');
-var store = function (sax) {
-  try {
-    if (!sax) throw 'storehlc depend on SAX, SAX is fkp-sax, is a Global fun';
-    return function (id, ComposedComponent, extension) {
-      if (!id) throw 'storehlc id must be set';
-      return function (_ComposedComponent) {
-        _inherits(_class, _ComposedComponent);
-
-        function _class(props) {
-          _classCallCheck(this, _class);
-
-          var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
-
-          _this.globalName = id;
-
-          // 初始化，组件没有渲染的状态
-          var unmounted = {};
-          unmounted[id] = false;
-          componentMonuted.append(unmounted);
-
-          var queryer = sax(id);
-          _this.saxer = queryer;
-          _this.on = queryer.on.bind(queryer);
-          _this.hasOn = queryer.hasOn.bind(queryer);
-          _this.one = queryer.one.bind(queryer);
-          _this.off = queryer.off.bind(queryer);
-          _this.emit = queryer.emit.bind(queryer);
-          _this.roll = queryer.roll.bind(queryer);
-          _this.append = queryer.append.bind(queryer);
-          queryer.data.originalState ? queryer.data.originalState[id] = (0, _lodash2.default)(_this.state) : function () {
-            var temp = {};temp[id] = (0, _lodash2.default)(_this.state);
-            queryer.data.originalState = temp;
-          }();
-          sax.bind(id, _this);
-
-          if ((typeof extension === 'undefined' ? 'undefined' : _typeof(extension)) == 'object') {
-            if (_typeof(extension.plugins) == 'object' && !Array.isArray(extension.plugins)) {
-              var plugins = extension.plugins;
-              Object.keys(extension.plugins).map(function (item) {
-                if (typeof plugins[item] == 'function') {
-                  // plugins[item] = this::plugins[item]
-                  _this[item] = plugins[item];
-                }
-              });
-            }
-          }
-          return _this;
-        }
-
-        return _class;
-      }(ComposedComponent);
-    };
-  } catch (e) {
-    return ComposedComponent;
-  }
-}(SAX);
-
 var isFunction = function isFunction(target) {
   return typeof target == 'function';
 };
+var componentMonuted = {};
+var instanceCollection = {};
 
-var didMount = function didMount(ctx, opts, cb, queryer) {
+function didMount(ctx, opts, cb, queryer) {
   var that = findDOMNode(this);
   if (typeof this.props.itemDefaultMethod == 'function') {
     this.props.itemDefaultMethod.call(ctx, that, this.intent);
@@ -162,89 +91,231 @@ var didMount = function didMount(ctx, opts, cb, queryer) {
     if (!imd) imd = function imd() {};
     imd.call(ctx, that, this.intent);
   }
-  queryer.roll('rendered', {
-    dom: that,
-    opts: opts,
-    ctx: ctx
-  });
 
-  queryer.roll('__rendered', {
-    dom: that,
-    opts: opts,
-    ctx: ctx
-  });
-};
+  if (queryer) {
+    queryer.roll('rendered', {
+      dom: that,
+      opts: opts,
+      ctx: ctx
+    });
 
-var unMount = function unMount(opts, queryer) {
-  var that = findDOMNode(this);
-  if (typeof opts.leave == 'function' || typeof this.props.leave == 'function') {
-    var imd = isFunction(opts.leave) ? opts.leave : this.props.leave;
-    imd(that, this.intent);
+    queryer.roll('__rendered', {
+      dom: that,
+      opts: opts,
+      ctx: ctx
+    });
   }
-};
+}
+
+function unMount() {
+  var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var queryer = arguments[2];
+
+  if (queryer) {
+    var name = queryer.name;
+    if (props.unMountDestory) {
+      // queryer.off('__rendered')
+      // queryer.unbind()
+      // queryer.destory()
+      // // queryer = null
+      // SAX.destory(name)
+      instanceCollection[name].destory();
+      // delete instanceCollection[name]
+    }
+  }
+
+  if (typeof opts.leave == 'function') {
+    var _ctx = {};
+
+    if (name) _ctx.destory = function () {
+      instanceCollection[name].destory();
+    };
+
+    if (typeof opts.leave == 'function') {
+      opts.leave.call(_ctx);
+    }
+  }
+}
+
+var store = function (sax) {
+  try {
+    if (!sax) throw 'storehlc depend on SAX, SAX is fkp-sax, is a Global fun';
+    return function (id, ComposedComponent, extension, opts, cb) {
+      if (!id) throw 'storehlc id must be set';
+
+      var Store = function (_ComposedComponent) {
+        _inherits(Store, _ComposedComponent);
+
+        function Store(props) {
+          _classCallCheck(this, Store);
+
+          var _this = _possibleConstructorReturn(this, (Store.__proto__ || Object.getPrototypeOf(Store)).call(this, props));
+
+          _this.globalName = id;
+          _this.intent = _this.props.intent || _this.props.idf || 0;
+
+          // 初始化，组件没有渲染的状态
+          componentMonuted[_this.globalName] = false;
+
+          var queryer = sax(_this.globalName);
+          _this.saxer = queryer;
+          _this.on = queryer.on.bind(queryer);
+          _this.hasOn = queryer.hasOn.bind(queryer);
+          _this.one = queryer.one.bind(queryer);
+          _this.off = queryer.off.bind(queryer);
+          _this.emit = queryer.emit.bind(queryer);
+          _this.roll = queryer.roll.bind(queryer);
+          _this.append = queryer.append.bind(queryer);
+          queryer.data.originalState ? queryer.data.originalState[_this.globalName] = cloneDeep(_this.state) // queryer.data.originalState[this.globalName] = cloneDeep(this.state)
+          : function () {
+            var temp = {};
+            temp[_this.globalName] = cloneDeep(_this.state); // temp[this.globalName] = cloneDeep(this.state)
+            queryer.data.originalState = temp;
+          }();
+          sax.bind(_this.globalName, _this);
+
+          if ((typeof extension === 'undefined' ? 'undefined' : _typeof(extension)) == 'object') {
+            if (_typeof(extension.plugins) == 'object' && !Array.isArray(extension.plugins)) {
+              var plugins = extension.plugins;
+              Object.keys(extension.plugins).map(function (item) {
+                if (typeof plugins[item] == 'function') {
+                  _this[item] = plugins[item];
+                }
+              });
+            }
+          }
+          return _this;
+        }
+
+        _createClass(Store, [{
+          key: 'componentWillUnmount',
+          value: function componentWillUnmount() {
+            var queryer = sax(this.globalName);
+            componentMonuted[this.globalName] = false;
+            _get(Store.prototype.__proto__ || Object.getPrototypeOf(Store.prototype), 'componentWillUnmount', this) ? _get(Store.prototype.__proto__ || Object.getPrototypeOf(Store.prototype), 'componentWillUnmount', this).call(this) : '';
+            opts.leave = opts.leave || this.props.leave;
+            unMount(opts, this.props, queryer);
+          }
+        }, {
+          key: 'componentDidUpdate',
+          value: function componentDidUpdate() {
+            this.didUpdate = true;
+            _get(Store.prototype.__proto__ || Object.getPrototypeOf(Store.prototype), 'componentDidUpdate', this) ? _get(Store.prototype.__proto__ || Object.getPrototypeOf(Store.prototype), 'componentDidUpdate', this).call(this) : '';
+            this.componentDidMount();
+          }
+        }, {
+          key: 'componentDidMount',
+          value: function componentDidMount() {
+            componentMonuted[this.globalName] = true;
+
+            if (this.didUpdate = true) {
+              this.didUpdate = false;
+            } else {
+              this.saxer.off('__rendered');
+            }
+            var _ctx = {
+              // state: this.saxer.data.originalState[globalName],
+              // dispatch: dispatcher,
+              refs: this.refs,
+              index: this.props.idf
+            };
+            _get(Store.prototype.__proto__ || Object.getPrototypeOf(Store.prototype), 'componentDidMount', this) ? _get(Store.prototype.__proto__ || Object.getPrototypeOf(Store.prototype), 'componentDidMount', this).call(this) : '';
+            didMount.call(this, _ctx, opts, cb, this.saxer);
+          }
+        }]);
+
+        return Store;
+      }(ComposedComponent);
+
+      Store.defaultProps = {
+        unMountDestory: false
+      };
+
+      return Store;
+    };
+  } catch (e) {
+    return ComposedComponent;
+  }
+}(SAX);
+
+function dealWithReactClass(CComponent) {
+  var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var cb = arguments[2];
+  var queryer = arguments[3];
+
+  return function (_CComponent) {
+    _inherits(_class, _CComponent);
+
+    function _class(props) {
+      _classCallCheck(this, _class);
+
+      var _this2 = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, props));
+
+      _this2.intent = _this2.props.intent;
+      return _this2;
+    }
+
+    _createClass(_class, [{
+      key: 'componentWillUnmount',
+      value: function componentWillUnmount() {
+        // opts.leave = opts.leave || this.props.leave
+        // unMount.call(this, opts, queryer)
+
+        opts.leave = opts.leave || this.props.leave;
+        _get(_class.prototype.__proto__ || Object.getPrototypeOf(_class.prototype), 'componentWillUnmount', this) ? _get(_class.prototype.__proto__ || Object.getPrototypeOf(_class.prototype), 'componentWillUnmount', this).call(this) : '';
+        unMount(opts, this.props, queryer);
+      }
+    }, {
+      key: 'componentDidMount',
+      value: function componentDidMount() {
+        var _ctx = {
+          refs: this.refs,
+          index: this.props.idf
+        };
+        _get(_class.prototype.__proto__ || Object.getPrototypeOf(_class.prototype), 'componentDidMount', this) ? _get(_class.prototype.__proto__ || Object.getPrototypeOf(_class.prototype), 'componentDidMount', this).call(this) : '';
+        didMount.call(this, _ctx, opts, cb, queryer);
+      }
+    }]);
+
+    return _class;
+  }(CComponent);
+}
 
 /**
  * [dealWithReactElement 处理传入为react element 的场景，一般用于wrap]
  * @param  {react element} CComponent [description]
  * @return {react class}            [description]
  */
-function dealWithReactElement(CComponent, opts, cb, queryer) {
+function dealWithReactElement(CComponent) {
+  var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var cb = arguments[2];
+  var queryer = arguments[3];
+
   return function (_React$Component) {
     _inherits(_class2, _React$Component);
 
     function _class2(props) {
       _classCallCheck(this, _class2);
 
-      var _this2 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, props));
+      var _this3 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, props));
 
-      _this2.intent = _this2.props.intent;
-      _this2.state = { show: true };
-
-      _this2.show = _this2.show.bind(_this2);
-      _this2.hide = _this2.hide.bind(_this2);
-      return _this2;
+      _this3.intent = _this3.props.intent;
+      return _this3;
     }
 
     _createClass(_class2, [{
-      key: 'componentWillMount',
-      value: function componentWillMount() {
-        if (this.props.show == false) this.setState({ show: false });
-      }
-    }, {
-      key: 'show',
-      value: function show() {
-        this.setState({
-          show: true
-        });
-      }
-    }, {
-      key: 'hide',
-      value: function hide() {
-        this.setState({
-          show: false
-        });
-      }
-    }, {
       key: 'componentWillUnmount',
       value: function componentWillUnmount() {
-        unMount.call(this, opts, queryer);
-      }
-    }, {
-      key: 'componentDidUpdate',
-      value: function componentDidUpdate() {
-        this.componentDidMount();
+        // opts.leave = opts.leave || this.props.leave
+        // unMount.call(this, opts, queryer)
+
+        opts.leave = opts.leave || this.props.leave;
+        unMount(opts, this.props, queryer);
       }
     }, {
       key: 'componentDidMount',
       value: function componentDidMount() {
-        var self = this;
-        var that = findDOMNode(this);
-
-        // const _ctx = {
-        //   show: this.show,
-        //   hide: this.hide
-        // }
-
         var _ctx = {};
         _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this) ? _get(_class2.prototype.__proto__ || Object.getPrototypeOf(_class2.prototype), 'componentDidMount', this).call(this) : '';
         didMount.call(this, _ctx, opts, cb, queryer);
@@ -252,7 +323,6 @@ function dealWithReactElement(CComponent, opts, cb, queryer) {
     }, {
       key: 'render',
       value: function render() {
-        // return this.state.show ? CComponent : empty
         return CComponent;
       }
     }]);
@@ -262,30 +332,41 @@ function dealWithReactElement(CComponent, opts, cb, queryer) {
 }
 
 /**
+ * type 2
+ * ComposedComponent 为 React class
+ * @type {[type]}
+ */
+function dispatcher(key, props, QueryCtx, queryer, globalName) {
+  var ctx = queryer.store.ctx[globalName];
+  if (ctx) {
+    // const liveState = cloneDeep(ctx.state)
+    var liveState = ctx.state;
+    var oState = queryer.data.originalState[globalName];
+    var queryActions = queryer.data;
+    queryActions.curState = liveState;
+    if (queryActions[key]) {
+      var _tmp = queryActions[key].call(queryActions, oState, props, QueryCtx);
+      if (_tmp) {
+        ctx.setState(_tmp);
+      }
+    }
+  }
+}
+
+/**
  * [combineX description]
  * @param  {react class | react element}   ComposedComponent [description]
  * @param  {object}   opts              [description]
  * @param  {Function} cb                [description]
  * @return {react class | object}       [description]
  */
-
 function combineX(ComposedComponent, opts, cb) {
   if (!ComposedComponent) return;
-
   if (typeof ComposedComponent == 'string' || Array.isArray(ComposedComponent)) return;
-
   var extension = cb;
-
   if (typeof opts == 'function') {
     cb = opts;
     opts = undefined;
-  }
-
-  var globalName = (0, _lodash6.default)('Combinex_');
-
-  var queryer = SAX(globalName);
-  if (opts) {
-    queryer.append(opts);
   }
 
   // will return React class for type 2
@@ -302,155 +383,34 @@ function combineX(ComposedComponent, opts, cb) {
    * @return [type]         [description]
    */
   if (React.isValidElement(ComposedComponent)) {
-    return dealWithReactElement(ComposedComponent, opts, cb, queryer);
+    return dealWithReactElement(ComposedComponent, opts, cb);
   }
-
-  /**
-   * type 2
-   * ComposedComponent 为 React class
-   * @type {[type]}
-   */
-
-  function dispatcher(key, props, QueryCtx) {
-    var ctx = queryer.store.ctx[globalName];
-
-    var liveState = (0, _lodash2.default)(ctx.state);
-    var oState = queryer.data.originalState[globalName];
-    // const oState = JSON.parse(queryer.data.originalState[globalName])
-
-    var queryActions = queryer.data;
-
-    // const _state = {
-    //   curState: liveState,
-    // }
-
-    queryActions.curState = liveState;
-    QueryCtx.data = liveState.data;
-
-    if (queryActions[key]) {
-      var _tmp = queryActions[key].call(queryActions, oState, props, QueryCtx);
-      if (_tmp) {
-        // const target = merge({}, oState, _tmp)
-        ctx.setState(_tmp);
-      }
-    }
-  }
-
-  var ReactComponentMonuted = false;
-
-  var Temp = function (_ComposedComponent2) {
-    _inherits(Temp, _ComposedComponent2);
-
-    function Temp(props) {
-      _classCallCheck(this, Temp);
-
-      var _this3 = _possibleConstructorReturn(this, (Temp.__proto__ || Object.getPrototypeOf(Temp)).call(this, props));
-
-      _this3.intent = _this3.props.intent || _this3.props.idf || 0;
-      return _this3;
-    }
-
-    _createClass(Temp, [{
-      key: 'componentWillUnmount',
-      value: function componentWillUnmount() {
-        // const gname = this.globalName
-        // componentMonuted.data[gname] = false
-        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentWillUnmount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentWillUnmount', this).call(this) : '';
-        componentMonuted.data[this.globalName] = false;
-        queryer.off('__rendered');
-        unMount.call(this, opts, queryer);
-      }
-    }, {
-      key: 'componentDidUpdate',
-      value: function componentDidUpdate() {
-        this.didUpdate = true;
-        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidUpdate', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidUpdate', this).call(this) : '';
-        this.componentDidMount();
-      }
-    }, {
-      key: 'componentDidMount',
-      value: function componentDidMount() {
-        var self = this;
-        var that = findDOMNode(this);
-        componentMonuted.data[this.globalName] = true;
-
-        if (this.didUpdate = true) {
-          this.didUpdate = false;
-        } else {
-          queryer.off('__rendered');
-        }
-        var _ctx = {
-          // state: queryer.data.originalState[globalName],
-          dispatch: dispatcher,
-          refs: this.refs,
-          index: this.props.idf
-        };
-        _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this) ? _get(Temp.prototype.__proto__ || Object.getPrototypeOf(Temp.prototype), 'componentDidMount', this).call(this) : '';
-        didMount.call(this, _ctx, opts, cb, queryer);
-      }
-    }]);
-
-    return Temp;
-  }(ComposedComponent);
-
-  var Query = function Query(config) {
-    _classCallCheck(this, Query);
-
-    this.config = config;
-    this.element = store(globalName, Temp, extension);
-    this.timer;
-    this.globalName = globalName;
-    this.saxer = queryer;
-    this.setActions = queryer.setActions.bind(queryer);
-    this.on = queryer.on.bind(queryer);
-    this.hasOn = queryer.hasOn.bind(queryer);
-    this.one = queryer.one.bind(queryer);
-    this.off = queryer.off.bind(queryer);
-    this.roll = queryer.roll.bind(queryer);
-    this.emit = queryer.emit.bind(queryer);
-    this.data;
-
-    this.hasMounted = function () {
-      var gname = this.globalName;
-      return componentMonuted.data[gname];
-    };
-
-    this.dispatch = function (key, props, ctx) {
-      var that = this;
-      var hasMounted = that.hasMounted();
-      this.saxer.off('__rendered');
-      if (hasMounted) {
-        setTimeout(function () {
-          dispatcher(key, props, that);
-        }, 0);
-      } else {
-        clearTimeout(that.timer);
-        this.saxer.on('__rendered', function () {
-          that.timer = setTimeout(function () {
-            clearTimeout(that.timer);
-            dispatcher(key, props, that);
-            that.saxer.off('__rendered');
-          }, 0);
-        });
-      }
-    };
-  };
 
   if (returnReactClass) {
-    return store(globalName, Temp, extension);
-  } else {
-    return new Query();
+    // const globalName = uniqueId('returnReactClass_')
+    return dealWithReactClass(ComposedComponent, opts, cb);
   }
+  // else {
+  //   const globalName = uniqueId('Combinex_')
+  //   const queryer = SAX(globalName)
+  //   if (opts) { queryer.append(opts) }
+
+  //   return {
+  //     globalName,
+  //     queryer,
+  //     ComposedComponent,
+  //     extension,
+  //     opts,
+  //     cb
+  //   }
+  // }
 }
 
 function _wrap(ComposedComponent, opts, cb) {
-  if (!opts) opts = { type: 'reactClass' };
-
-  if (typeof opts == 'function') {
+  opts = opts || { type: 'reactClass' };
+  if (isFunction(opts)) {
     cb = opts;
-    opts = {
-      type: 'reactClass'
-    };
+    opts = { type: 'reactClass' };
   }
 
   if ((typeof opts === 'undefined' ? 'undefined' : _typeof(opts)) == 'object') {
@@ -461,7 +421,6 @@ function _wrap(ComposedComponent, opts, cb) {
 }
 
 // CombineClass
-
 function browserRender(id, X, config) {
   var props = config.props;
   if (typeof id == 'string') {
@@ -476,26 +435,65 @@ function browserRender(id, X, config) {
 function _rendered(ctx, cb) {
   return function (dom, intent) {
     ctx.elements = this.refs;
-    // ctx.data = ctx.combx.data ? ctx.combx.data : ctx.config.props.data  // 用于实例中做数据查询，该data同步于react class的state.data，dispatcher中动态更新该值
-    cb.call(this, dom, intent, ctx);
+    cb(dom, intent);
   };
 }
 
 var CombineClass = exports.CombineClass = function () {
-  function CombineClass(config) {
+  // constructor(config) {
+  function CombineClass() {
+    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var rctCls = arguments[1];
+    var acts = arguments[2];
+    var exts = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+    var gname = arguments[4];
+
     _classCallCheck(this, CombineClass);
 
     this.config = config;
     this.isClient = isClient;
-    this.extension = {};
     this.elements; // rendered方法中赋值，react class的componentDidMount之后将refs的内容赋值给该变量
     this.leave; //unmounted 触发的方法
-    browserRender = browserRender.bind(this);
 
-    this.inject();
+    var ext = {};
+    var plugins = exts.plugins;
+    if (plugins) {
+      Object.keys(plugins).map(function (item) {
+        if (typeof plugins[item] == 'function') {
+          ext[item] = plugins[item];
+        }
+      });
+    }
+    this.extension = { plugins: ext };
+
+    this.globalName = function () {
+      return gname || uniqueId('Combinex_');
+    }();
+
+    // aotoo中下项是被释放的
+    // 下列做法主要为兼容PC端老版系统
+    // this.combinex(rctCls, acts) 
   }
 
   _createClass(CombineClass, [{
+    key: 'destory',
+    value: function destory() {
+      var queryer = this.saxer;
+      var name = queryer.name;
+      queryer.off('__rendered');
+      queryer.unbind();
+      queryer.destory();
+      SAX.destory(name);
+
+      for (var prop in this) {
+        if (prop != 'destory') {
+          delete this[prop];
+        }
+      }
+
+      delete instanceCollection[name];
+    }
+  }, {
     key: 'combinex',
     value: function combinex(GridsBase) {
       var _this4 = this;
@@ -503,21 +501,67 @@ var CombineClass = exports.CombineClass = function () {
       var Actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var that = this;
-      var CombX = combineX(GridsBase, Actions, this.extension);
-      this.combx = CombX;
-      this.saxer = CombX.saxer;
-      this.globalName = CombX.globalName;
-      this.x = CombX.element;
-      this.dispatch = CombX.dispatch.bind(CombX);
-      this.hasMounted = CombX.hasMounted.bind(CombX);
-      this.data = CombX.data;
+      var globalName = this.globalName;
+      var queryer = SAX(globalName);
+      queryer.append(Actions);
+      this.x = store(globalName, GridsBase, this.extension, Actions);
+      this.globalName = globalName;
+      this.saxer = queryer;
+
+      this.on = function (evt, opts, func) {
+        queryer.on(evt, opts, func);
+        return _this4;
+      };
+
+      this.hasOn = function (evt, opts, func) {
+        return queryer.hasOn(evt, opts, func);
+      };
+
+      this.one = function (evt, opts, func) {
+        queryer.one(evt, opts, func);
+        return _this4;
+      };
+
+      this.off = function (evt, opts, func) {
+        queryer.off(evt, opts, func);
+        return _this4;
+      };
+
+      this.roll = function (type, data) {
+        return queryer.roll(type, data);
+      };
+
+      this.emit = this.roll;
+
+      this.hasMounted = function () {
+        var gname = globalName;
+        return componentMonuted[gname];
+      };
+
+      this.dispatch = function (key, props, ctx) {
+        var that = this;
+        var hasMounted = that.hasMounted();
+        this.saxer.off('__rendered');
+        if (hasMounted) {
+          setTimeout(function () {
+            dispatcher(key, props, that, that.saxer, that.globalName);
+          }, 0);
+        } else {
+          clearTimeout(that.timer);
+          this.saxer.on('__rendered', function () {
+            that.timer = setTimeout(function () {
+              clearTimeout(that.timer);
+              dispatcher(key, props, that, that.saxer, that.globalName);
+              that.saxer.off('__rendered');
+            }, 0);
+          });
+        }
+      };
 
       this.getState = function () {
         var ctx = this.saxer.store.ctx[this.globalName];
-        var liveState = _extends({}, ctx.state);
-        return liveState;
-        // return this.saxer.data && this.saxer.data.originalState && this.saxer.data.originalState[this.globalName]
-      }.bind(this);
+        return ctx.state;
+      };
 
       var keynames = Object.keys(Actions);
       var lowKeyNames = keynames.map(function (item) {
@@ -537,40 +581,8 @@ var CombineClass = exports.CombineClass = function () {
         _loop(ii);
       }
 
-      // this.setActions = function(key, func){
-      //   const _actions = {}
-      //   _actions[key] = func
-      //   CombX.saxer.setActions(_actions)
-      //   return this
-      // }
-
-      this.on = function (evt, opts, func) {
-        CombX.saxer.on(evt, opts, func);
-        return _this4;
-      };
-
-      this.hasOn = function (evt, opts, func) {
-        return CombX.saxer.hasOn(evt, opts, func);
-      };
-
-      this.one = function (evt, opts, func) {
-        CombX.saxer.one(evt, opts, func);
-        return _this4;
-      };
-
-      this.off = function (evt, opts, func) {
-        CombX.saxer.off(evt, opts, func);
-        return _this4;
-      };
-
-      this.roll = function (type, data) {
-        return CombX.saxer.roll(type, data);
-      };
-
-      this.emit = this.roll;
-
       this.appendActions = function (obj) {
-        CombX.saxer.append(obj);
+        this.saxer.append(obj);
         Object.keys(obj).map(function (item) {
           var lowCaseName = '$' + item.toLowerCase();
           that[lowCaseName] = function (param) {
@@ -587,24 +599,10 @@ var CombineClass = exports.CombineClass = function () {
 
       if ((typeof exts === 'undefined' ? 'undefined' : _typeof(exts)) == 'object') {
         Object.keys(exts).map(function (_name) {
+          var _ext = exts[_name];
           _this5[_name] = exts[_name];
         });
       }
-    }
-  }, {
-    key: 'inject',
-    value: function inject(src) {
-      if (this.isClient) {
-        // const ij = inject()
-        // if (this.config.theme && this.config.autoinject) {
-        //   ij.css(['/css/m/'+this.config.theme])  //注入样式
-        // }
-        // if (typeof src == 'function') {
-        //   src(ij)
-        // }
-        // return ij
-      }
-      return this;
     }
   }, {
     key: 'setConfig',
@@ -628,7 +626,10 @@ var CombineClass = exports.CombineClass = function () {
     value: function render(id, cb) {
       id = id || this.config.container;
       var X = this.x;
-      var _props = this.props || this.config.props || {};
+      var _props = this.props || this.config.props || {
+        unMountDestory: false,
+        leave: false
+      };
 
       if (typeof id == 'function' || typeof cb == 'function') {
         this.config.rendered = typeof id == 'function' ? id : cb;
@@ -658,4 +659,10 @@ var CombineClass = exports.CombineClass = function () {
 
   return CombineClass;
 }();
+
+function createCombinClass(rctCls, acts, config, exts) {
+  var globalName = uniqueId('Combinex_');
+  instanceCollection[globalName] = new CombineClass(config, rctCls, acts, exts, globalName);
+  return instanceCollection[globalName];
+}
 //# sourceMappingURL=maps/index.js.map
