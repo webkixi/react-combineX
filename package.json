@@ -1,6 +1,6 @@
 {
   "name": "react-combinex",
-  "version": "1.2.32",
+  "version": "1.2.33",
   "description": "for micro react component, query dom and rerender component like redux",
   "main": "./build/index.js",
   "scripts": {

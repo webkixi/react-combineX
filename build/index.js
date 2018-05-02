@@ -339,8 +339,8 @@ function dealWithReactElement(CComponent) {
 function dispatcher(key, props, QueryCtx, queryer, globalName) {
   var ctx = queryer.store.ctx[globalName];
   if (ctx) {
-    // const liveState = cloneDeep(ctx.state)
-    var liveState = ctx.state;
+    var liveState = cloneDeep(ctx.state);
+    // const liveState = ctx.state
     var oState = queryer.data.originalState[globalName];
     var queryActions = queryer.data;
     queryActions.curState = liveState;
